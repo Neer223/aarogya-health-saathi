@@ -3,8 +3,12 @@ import Footer from '@/components/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Leaf, Dumbbell, AlertCircle } from 'lucide-react';
-import exerciseWalking from '@/assets/exercise-walking.jpg';
-import exerciseYoga from '@/assets/exercise-yoga.jpg';
+import exerciseWalking from '@/assets/exercise-walking-improved.jpg';
+import yogaSuryaNamaskar from '@/assets/yoga-surya-namaskar.jpg';
+import yogaPaschimottanasana from '@/assets/yoga-paschimottanasana.jpg';
+import yogaDhanurasana from '@/assets/yoga-dhanurasana.jpg';
+import yogaTrikonasana from '@/assets/yoga-trikonasana.jpg';
+import yogaPranayama from '@/assets/yoga-pranayama.jpg';
 import foodKarela from '@/assets/food-karela.jpg';
 import foodFenugreek from '@/assets/food-fenugreek.jpg';
 import foodAmla from '@/assets/food-amla.jpg';
@@ -15,14 +19,38 @@ const HealthTips = () => {
     {
       title: 'Daily Walking',
       description: 'Walk for 30-45 minutes daily. Morning walks in nature are especially beneficial for blood sugar control.',
-      benefits: 'Improves insulin sensitivity, aids weight management, reduces stress',
+      benefits: 'Improves insulin sensitivity, aids weight management, reduces stress, lowers blood glucose levels',
       image: exerciseWalking,
     },
     {
-      title: 'Yoga & Meditation',
-      description: 'Practice yoga asanas like Surya Namaskar, Paschimottanasana, and Dhanurasana. Include pranayama breathing exercises.',
-      benefits: 'Reduces stress hormones, improves metabolism, enhances overall well-being',
-      image: exerciseYoga,
+      title: 'Surya Namaskar (Sun Salutation)',
+      description: 'A complete body workout combining 12 yoga poses in a flowing sequence. Practice 5-10 rounds daily, preferably during sunrise.',
+      benefits: 'Stimulates pancreas, improves insulin production, enhances metabolism, burns calories, tones entire body',
+      image: yogaSuryaNamaskar,
+    },
+    {
+      title: 'Paschimottanasana (Seated Forward Bend)',
+      description: 'Sit with legs extended, slowly bend forward to touch your toes. Hold for 30-60 seconds. Perform 3-5 repetitions.',
+      benefits: 'Massages abdominal organs, stimulates pancreas and liver, reduces belly fat, improves digestion',
+      image: yogaPaschimottanasana,
+    },
+    {
+      title: 'Dhanurasana (Bow Pose)',
+      description: 'Lie on stomach, bend knees, hold ankles and lift chest and thighs. Hold for 15-30 seconds. Repeat 3-4 times.',
+      benefits: 'Strengthens pancreas, regulates blood sugar, improves digestion, reduces abdominal fat',
+      image: yogaDhanurasana,
+    },
+    {
+      title: 'Trikonasana (Triangle Pose)',
+      description: 'Stand with legs wide apart, bend sideways touching one foot while raising the other arm. Hold for 30 seconds each side.',
+      benefits: 'Improves blood circulation, stimulates abdominal organs, reduces stress, enhances overall balance',
+      image: yogaTrikonasana,
+    },
+    {
+      title: 'Pranayama (Breathing Exercises)',
+      description: 'Practice Anulom Vilom (alternate nostril breathing) and Kapalbhati (forceful exhalation) for 10-15 minutes daily.',
+      benefits: 'Reduces stress hormones, improves oxygen supply, enhances insulin sensitivity, calms nervous system',
+      image: yogaPranayama,
     },
   ];
 
@@ -182,12 +210,16 @@ const HealthTips = () => {
 
             {/* Exercise Tab */}
             <TabsContent value="exercise" className="space-y-6">
-              <h2 className="text-2xl font-bold text-foreground mb-6">Recommended Exercises</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-6">Recommended Exercises & Yoga Asanas</h2>
+              <p className="text-muted-foreground mb-8">
+                These specific yoga poses and exercises target the pancreas, improve metabolism, and help regulate blood sugar naturally. 
+                Practice them regularly for best results.
+              </p>
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {exercises.map((exercise, index) => (
                   <Card key={index} className="border-2 border-border overflow-hidden hover:shadow-[var(--shadow-soft)] transition-all">
-                    <div className="h-64 overflow-hidden">
+                    <div className="h-56 overflow-hidden">
                       <img 
                         src={exercise.image} 
                         alt={exercise.title}
