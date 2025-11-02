@@ -1,27 +1,33 @@
 import { useState } from 'react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import GenderSelection from '@/components/diabetes/GenderSelection';
 import DiabetesForm from '@/components/diabetes/DiabetesForm';
 import ResultDialog from '@/components/diabetes/ResultDialog';
 import { DiabetesFormData, Gender } from '@/types/diabetes';
-import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const DiabetesTracker = () => {
   const [selectedGender, setSelectedGender] = useState<Gender | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [predictionResult, setPredictionResult] = useState<'low-risk' | 'pre-diabetic' | 'diabetic'>('pre-diabetic');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const handleGenderSelect = (gender: Gender) => {
     setSelectedGender(gender);
   };
 
-  const handleFormSubmit = (data: DiabetesFormData) => {
+  const handleFormSubmit = async (data: DiabetesFormData) => {
     console.log('Form submitted with data:', data);
     
-    // Simulate prediction logic (replace with actual backend call)
-    // For demo purposes, we'll use glucose level as a simple indicator
+    // Start loading animation
+    setIsAnalyzing(true);
+    
+    // Simulate API call with delay (replace with actual backend call)
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Simulate prediction logic
     const glucoseLevel = parseFloat(data.glucose);
     let result: 'low-risk' | 'pre-diabetic' | 'diabetic' = 'low-risk';
     
@@ -32,6 +38,7 @@ const DiabetesTracker = () => {
     }
     
     setPredictionResult(result);
+    setIsAnalyzing(false);
     setShowResult(true);
     
     // Here you would typically send data to your backend:
@@ -41,6 +48,7 @@ const DiabetesTracker = () => {
   const handleReset = () => {
     setSelectedGender(null);
     setShowResult(false);
+    setIsAnalyzing(false);
   };
 
   return (
@@ -60,7 +68,7 @@ const DiabetesTracker = () => {
           </div>
 
           {/* Back Button (shown when gender is selected) */}
-          {selectedGender && (
+          {selectedGender && !isAnalyzing && (
             <div className="mb-6">
               <Button
                 variant="ghost"
@@ -77,7 +85,10 @@ const DiabetesTracker = () => {
           {!selectedGender ? (
             <GenderSelection onSelectGender={handleGenderSelect} />
           ) : (
-            <DiabetesForm gender={selectedGender} onSubmit={handleFormSubmit} />
+            <DiabetesForm 
+              gender={selectedGender} 
+              onSubmit={handleFormSubmit}
+            />
           )}
         </div>
       </main>

@@ -8,30 +8,34 @@ const Index = () => {
   const features = [
     {
       icon: Heart,
-      title: 'Natural Approach',
-      description: 'Harness the power of Ayurvedic wisdom combined with modern medical understanding for holistic diabetes care.',
+      title: 'A Natural Way to Heal',
+      description:
+        'We combine the timeless power of Ayurveda with modern medical science to support your diabetes journey naturally and effectively.',
     },
     {
       icon: Activity,
-      title: 'Risk Assessment',
-      description: 'Get personalized diabetes risk analysis based on your health metrics with our intelligent tracker.',
+      title: 'Personalized Risk Check',
+      description:
+        'Get a clear picture of your diabetes risk through our intelligent health tracker — made to help you take control early.',
     },
     {
       icon: Leaf,
-      title: 'Indian Remedies',
-      description: 'Discover traditional household remedies and natural foods that help manage and prevent diabetes.',
+      title: 'Traditional Indian Remedies',
+      description:
+        'Explore home-based Ayurvedic remedies and simple, natural foods that can help you manage and even prevent diabetes.',
     },
     {
       icon: Shield,
-      title: 'Prevention Focus',
-      description: 'Learn how pre-diabetes and early-stage diabetes can be reversed through lifestyle modifications.',
+      title: 'Focus on Prevention',
+      description:
+        'Discover how small lifestyle changes — like mindful eating and staying active — can reverse early-stage diabetes and protect your long-term health.',
     },
   ];
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
-      
+
       <main className="flex-1">
         {/* Hero Section */}
         <section className="py-8 px-4 sm:px-6 lg:px-8">
@@ -48,7 +52,7 @@ const Index = () => {
                 Why Choose DiabetesCare?
               </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                A comprehensive platform combining ancient Ayurvedic wisdom with modern science to help you prevent and manage diabetes naturally.
+                We believe in empowering you with the best of both worlds — ancient Ayurvedic wisdom and today’s medical knowledge — to help you live freely, with better health and balance.
               </p>
             </div>
 
@@ -56,7 +60,10 @@ const Index = () => {
               {features.map((feature, index) => {
                 const Icon = feature.icon;
                 return (
-                  <Card key={index} className="border-2 border-border hover:border-primary transition-all hover:shadow-[var(--shadow-soft)] group">
+                  <Card
+                    key={index}
+                    className="border-2 border-border hover:border-primary transition-all hover:shadow-[var(--shadow-soft)] group"
+                  >
                     <CardContent className="pt-6 text-center">
                       <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-all">
                         <Icon className="h-7 w-7 text-primary" />
@@ -77,24 +84,24 @@ const Index = () => {
             <Card className="border-2 border-border shadow-[var(--shadow-soft)]">
               <CardContent className="pt-6">
                 <h2 className="text-2xl font-bold text-foreground mb-4 text-center">
-                  Understanding Diabetes Prevention
+                  Taking Charge of Your Health
                 </h2>
                 <div className="space-y-4 text-muted-foreground">
                   <p>
-                    Diabetes is a condition that affects millions worldwide, but the good news is that it's largely preventable and even reversible in its early stages. Through a combination of natural remedies, proper nutrition, regular exercise, and lifestyle modifications, you can take control of your health.
+                    Diabetes affects millions of people worldwide — but the encouraging truth is that it can often be prevented, and even reversed, especially in the early stages. Through natural remedies, mindful nutrition, regular movement, and stress-free living, you can take meaningful steps toward better health.
                   </p>
                   <p>
-                    Our platform provides you with tools to:
+                    With DiabetesCare, you’ll be able to:
                   </p>
                   <ul className="list-disc list-inside space-y-2 ml-4">
-                    <li>Track your diabetes risk factors</li>
-                    <li>Learn about natural Indian household remedies</li>
-                    <li>Discover diabetes-friendly foods and recipes</li>
-                    <li>Understand the importance of exercise and yoga</li>
-                    <li>Access personalized health recommendations</li>
+                    <li>Track your health and identify early risk factors</li>
+                    <li>Learn simple, effective Ayurvedic home remedies</li>
+                    <li>Find diabetes-friendly foods, herbs, and recipes</li>
+                    <li>Understand how yoga and exercise improve insulin response</li>
+                    <li>Get lifestyle tips designed for your unique needs</li>
                   </ul>
                   <p className="text-sm italic text-center pt-4 border-t border-border mt-6">
-                    Remember: This platform is for educational purposes. Always consult with a qualified healthcare professional for medical advice.
+                    Note: This platform is for educational and lifestyle support purposes only. Please consult a qualified healthcare professional before making medical decisions.
                   </p>
                 </div>
               </CardContent>

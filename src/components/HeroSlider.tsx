@@ -47,6 +47,7 @@ const HeroSlider = () => {
           className={`absolute inset-0 transition-opacity duration-1000 ${
             index === currentSlide ? 'opacity-100' : 'opacity-0'
           }`}
+          style={{ pointerEvents: index === currentSlide ? 'auto' : 'none' }}
         >
           <div className="relative h-full">
             <img
@@ -66,6 +67,8 @@ const HeroSlider = () => {
                 </p>
                 <Button
                   variant="hero"
+                  size="lg"
+                  className="text-lg px-12 py-4 h-auto rounded-md"
                   onClick={() => navigate('/tracker')}
                 >
                   Get Started
@@ -79,21 +82,21 @@ const HeroSlider = () => {
       {/* Navigation Arrows */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-card/80 hover:bg-card rounded-full flex items-center justify-center transition-all shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-glow)]"
+        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-card/80 hover:bg-card rounded-full flex items-center justify-center transition-all shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-glow)] z-10"
         aria-label="Previous slide"
       >
         <ChevronLeft className="h-6 w-6 text-foreground" />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-card/80 hover:bg-card rounded-full flex items-center justify-center transition-all shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-glow)]"
+        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-card/80 hover:bg-card rounded-full flex items-center justify-center transition-all shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-glow)] z-10"
         aria-label="Next slide"
       >
         <ChevronRight className="h-6 w-6 text-foreground" />
       </button>
 
       {/* Dots Indicator */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
         {slides.map((_, index) => (
           <button
             key={index}

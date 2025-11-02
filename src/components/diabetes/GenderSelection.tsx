@@ -27,7 +27,7 @@ const GenderSelection = ({ onSelectGender }: GenderSelectionProps) => {
               variant="outline"
               size="lg"
               onClick={() => onSelectGender('female')}
-              className="h-24 text-lg font-semibold hover:border-primary hover:bg-primary/5 transition-all"
+              className="h-24 text-lg font-semibold hover:border-primary hover:bg-primary/80 transition-all"
             >
               Female
             </Button>
@@ -35,7 +35,7 @@ const GenderSelection = ({ onSelectGender }: GenderSelectionProps) => {
               variant="outline"
               size="lg"
               onClick={() => onSelectGender('male')}
-              className="h-24 text-lg font-semibold hover:border-primary hover:bg-primary/5 transition-all"
+              className="h-24 text-lg font-semibold hover:border-primary hover:bg-primary/80 transition-all"
             >
               Male
             </Button>
@@ -43,7 +43,7 @@ const GenderSelection = ({ onSelectGender }: GenderSelectionProps) => {
               variant="outline"
               size="lg"
               onClick={() => onSelectGender('other')}
-              className="h-24 text-lg font-semibold hover:border-primary hover:bg-primary/5 transition-all"
+              className="h-24 text-lg font-semibold hover:border-primary hover:bg-primary/80 transition-all"
             >
               Other
             </Button>
