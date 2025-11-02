@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Leaf, Dumbbell, AlertCircle, Sparkles, Heart, Moon, Droplets, Apple, Wind, Brain, Scale, Pill, TrendingDown, CheckCircle } from 'lucide-react';
+import { Leaf, Dumbbell, AlertCircle, Sparkles, Heart, Moon, Droplets, Apple, Brain, Scale, Pill, TrendingDown, ChevronDown, ChevronUp } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import exerciseWalking from '@/assets/exercise-walking-improved.jpg';
@@ -19,6 +19,8 @@ type TabValue = 'remedies' | 'exercise' | 'lifestyle';
 const HealthTips = () => {
   const [activeTab, setActiveTab] = useState<TabValue>('remedies');
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+  const [expandedRemedy, setExpandedRemedy] = useState<number | null>(null);
+  const [expandedExercise, setExpandedExercise] = useState<number | null>(null);
 
   const exercises = [
     {
@@ -117,41 +119,24 @@ const HealthTips = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50">
       <Navbar />
 
-      <main className="flex-1 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+      <main className="flex-1 py-6 sm:py-12 px-3 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {/* Header with animation */}
-          <div className="text-center mb-8 sm:mb-12 animate-in fade-in slide-in-from-top duration-700">
-            <div className="inline-block mb-4">
-              <Sparkles className="h-12 w-12 sm:h-16 sm:w-16 text-emerald-600 animate-pulse" />
+          <div className="text-center mb-6 sm:mb-12 animate-in fade-in slide-in-from-top duration-700">
+            <div className="inline-block mb-3 sm:mb-4">
+              <Sparkles className="h-10 w-10 sm:h-16 sm:w-16 text-emerald-600 animate-pulse" />
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 px-2">
+            <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2 sm:mb-4 px-2">
               Natural Health Tips for Managing Diabetes
             </h1>
-            <p className="text-base sm:text-lg text-gray-600 max-w-3xl mx-auto px-4">
+            <p className="text-sm sm:text-lg text-gray-600 max-w-3xl mx-auto px-3 sm:px-4">
               Discover simple, natural ways — from Ayurveda to yoga and mindful eating — to help manage and even reverse early diabetes.
             </p>
           </div>
 
-          {/* Important Notice */}
-          <div className="mb-8 sm:mb-12 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom duration-700">
-            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-2xl p-4 sm:p-6 shadow-lg">
-              <div className="flex gap-3 sm:gap-4">
-                <AlertCircle className="h-6 w-6 sm:h-7 sm:w-7 text-emerald-600 flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-2">
-                    Important: Diabetes Can Be Reversed
-                  </h3>
-                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
-                    Studies show that with the right diet, exercise, and mindset, pre-diabetes and early-stage Type 2 diabetes can often be reversed. The following tips blend Ayurvedic wisdom with scientific guidance — but always consult your healthcare professional before making major lifestyle changes.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Tabs - Now at top */}
-          <div className="mb-8 sm:mb-12">
-            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-8 sm:mb-12">
+          {/* Tabs */}
+          <div className="mb-6 sm:mb-12">
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-6 sm:mb-12">
               {[
                 { value: 'remedies' as TabValue, label: 'Natural Remedies', icon: Leaf, color: 'emerald' },
                 { value: 'exercise' as TabValue, label: 'Exercise & Yoga', icon: Dumbbell, color: 'blue' },
@@ -164,7 +149,7 @@ const HealthTips = () => {
                     key={tab.value}
                     onClick={() => setActiveTab(tab.value)}
                     className={`
-                      flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-full font-semibold text-sm sm:text-base
+                      flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-full font-semibold text-xs sm:text-base
                       transition-all duration-300 transform hover:scale-105 active:scale-95
                       ${isActive 
                         ? `bg-${tab.color}-600 text-white shadow-lg` 
@@ -175,7 +160,7 @@ const HealthTips = () => {
                       backgroundColor: tab.color === 'emerald' ? '#059669' : tab.color === 'blue' ? '#2563eb' : '#f43f5e',
                     } : {}}
                   >
-                    <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <Icon className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
                     <span className="hidden sm:inline">{tab.label}</span>
                     <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
                   </button>
@@ -185,12 +170,12 @@ const HealthTips = () => {
 
             {/* Remedies Tab Content */}
             {activeTab === 'remedies' && (
-              <div className="space-y-8 sm:space-y-12 animate-in fade-in slide-in-from-right duration-500">
+              <div className="space-y-6 sm:space-y-12 animate-in fade-in slide-in-from-right duration-500">
                 <div>
-                  <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-4 sm:mb-6 text-center">
+                  <h2 className="text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 mb-3 sm:mb-6 text-center">
                     🌿 Indian Household Remedies
                   </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6 lg:gap-8">
                     {indianRemedies.map((remedy, index) => (
                       <div
                         key={index}
@@ -198,7 +183,7 @@ const HealthTips = () => {
                         onMouseEnter={() => setHoveredCard(index)}
                         onMouseLeave={() => setHoveredCard(null)}
                       >
-                        <div className="relative h-48 sm:h-56 md:h-64 overflow-hidden">
+                        <div className="relative h-40 sm:h-56 md:h-64 overflow-hidden">
                           <img
                             src={remedy.image}
                             alt={remedy.title}
@@ -207,22 +192,47 @@ const HealthTips = () => {
                           <div className={`absolute inset-0 bg-gradient-to-t ${remedy.color} opacity-20 group-hover:opacity-30 transition-opacity duration-300`}></div>
                         </div>
                         <div className={`h-2 bg-gradient-to-r ${remedy.color}`}></div>
-                        <div className="p-4 sm:p-6">
-                          <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">
+                        <div className="p-3 sm:p-6">
+                          <h3 className="text-base sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3">
                             {remedy.title}
                           </h3>
-                          <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4 leading-relaxed">
+                          <p className="text-xs sm:text-base text-gray-600 mb-2 sm:mb-4 leading-relaxed">
                             {remedy.description}
                           </p>
-                          <div className="space-y-2 sm:space-y-3">
-                            <div className="bg-emerald-50 rounded-lg p-3 border-l-4 border-emerald-500">
-                              <p className="font-semibold text-xs sm:text-sm text-emerald-700 mb-1">✓ Benefits:</p>
-                              <p className="text-xs sm:text-sm text-gray-700">{remedy.benefits}</p>
-                            </div>
-                            <div className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-500">
-                              <p className="font-semibold text-xs sm:text-sm text-blue-700 mb-1">→ How to Use:</p>
-                              <p className="text-xs sm:text-sm text-gray-700">{remedy.howToUse}</p>
-                            </div>
+                          <div className="space-y-2">
+                            <button
+                              onClick={() => setExpandedRemedy(expandedRemedy === index ? null : index)}
+                              className="w-full flex items-center justify-between bg-emerald-50 hover:bg-emerald-100 rounded-lg p-2 sm:p-3 border border-emerald-200 transition-all duration-200"
+                            >
+                              <span className="font-semibold text-xs sm:text-sm text-emerald-700">✓ Benefits</span>
+                              {expandedRemedy === index ? (
+                                <ChevronUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-700" />
+                              ) : (
+                                <ChevronDown className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-700" />
+                              )}
+                            </button>
+                            {expandedRemedy === index && (
+                              <div className="bg-emerald-50 rounded-lg p-2 sm:p-3 border-l-4 border-emerald-500 animate-in slide-in-from-top duration-300">
+                                <p className="text-xs sm:text-sm text-gray-700">{remedy.benefits}</p>
+                              </div>
+                            )}
+                            
+                            <button
+                              onClick={() => setExpandedRemedy(expandedRemedy === index + 100 ? null : index + 100)}
+                              className="w-full flex items-center justify-between bg-blue-50 hover:bg-blue-100 rounded-lg p-2 sm:p-3 border border-blue-200 transition-all duration-200"
+                            >
+                              <span className="font-semibold text-xs sm:text-sm text-blue-700">→ How to Use</span>
+                              {expandedRemedy === index + 100 ? (
+                                <ChevronUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-700" />
+                              ) : (
+                                <ChevronDown className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-700" />
+                              )}
+                            </button>
+                            {expandedRemedy === index + 100 && (
+                              <div className="bg-blue-50 rounded-lg p-2 sm:p-3 border-l-4 border-blue-500 animate-in slide-in-from-top duration-300">
+                                <p className="text-xs sm:text-sm text-gray-700">{remedy.howToUse}</p>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -235,13 +245,13 @@ const HealthTips = () => {
             {/* Exercise Tab Content */}
             {activeTab === 'exercise' && (
               <div className="animate-in fade-in slide-in-from-right duration-500">
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-3 sm:mb-4 text-center">
+                <h2 className="text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2 sm:mb-4 text-center">
                   🧘 Recommended Exercises & Yoga
                 </h2>
-                <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8 text-center max-w-3xl mx-auto px-4">
+                <p className="text-xs sm:text-base text-gray-600 mb-4 sm:mb-8 text-center max-w-3xl mx-auto px-3 sm:px-4">
                   These yoga poses and movements activate key organs, improve metabolism, and bring overall balance. Practice regularly, and remember — progress, not perfection!
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6 lg:gap-8">
                   {exercises.map((exercise, index) => (
                     <div
                       key={index}
@@ -249,7 +259,7 @@ const HealthTips = () => {
                       onMouseEnter={() => setHoveredCard(index)}
                       onMouseLeave={() => setHoveredCard(null)}
                     >
-                      <div className="relative h-48 sm:h-56 md:h-64 overflow-hidden bg-gray-100">
+                      <div className="relative h-40 sm:h-56 md:h-64 overflow-hidden bg-gray-100">
                         <img
                           src={exercise.image}
                           alt={exercise.title}
@@ -258,17 +268,29 @@ const HealthTips = () => {
                         <div className={`absolute inset-0 bg-gradient-to-t ${exercise.color} opacity-20 group-hover:opacity-30 transition-opacity duration-300`}></div>
                       </div>
                       <div className={`h-2 bg-gradient-to-r ${exercise.color}`}></div>
-                      <div className="p-4 sm:p-6">
-                        <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">
+                      <div className="p-3 sm:p-6">
+                        <h3 className="text-base sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3">
                           {exercise.title}
                         </h3>
-                        <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4 leading-relaxed">
+                        <p className="text-xs sm:text-base text-gray-600 mb-2 sm:mb-4 leading-relaxed">
                           {exercise.description}
                         </p>
-                        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-3 border-l-4 border-blue-500">
-                          <p className="font-semibold text-xs sm:text-sm text-blue-700 mb-1">💪 Benefits:</p>
-                          <p className="text-xs sm:text-sm text-gray-700">{exercise.benefits}</p>
-                        </div>
+                        <button
+                          onClick={() => setExpandedExercise(expandedExercise === index ? null : index)}
+                          className="w-full flex items-center justify-between bg-gradient-to-r from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 rounded-lg p-2 sm:p-3 border border-blue-200 transition-all duration-200"
+                        >
+                          <span className="font-semibold text-xs sm:text-sm text-blue-700">💪 Benefits</span>
+                          {expandedExercise === index ? (
+                            <ChevronUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-700" />
+                          ) : (
+                            <ChevronDown className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-700" />
+                          )}
+                        </button>
+                        {expandedExercise === index && (
+                          <div className="mt-2 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-2 sm:p-3 border-l-4 border-blue-500 animate-in slide-in-from-top duration-300">
+                            <p className="text-xs sm:text-sm text-gray-700">{exercise.benefits}</p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -278,33 +300,33 @@ const HealthTips = () => {
 
             {/* Lifestyle Tab Content */}
             {activeTab === 'lifestyle' && (
-              <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-right duration-500">
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-6 sm:mb-8 text-center">
+              <div className="space-y-4 sm:space-y-8 animate-in fade-in slide-in-from-right duration-500">
+                <h2 className="text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 mb-4 sm:mb-8 text-center">
                   ✨ Lifestyle Habits for Better Health
                 </h2>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
                   {lifestyleTips.map((tip, index) => {
                     const Icon = tip.icon;
                     return (
                       <div
                         key={index}
-                        className="group relative bg-white rounded-2xl p-4 sm:p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden"
+                        className="group relative bg-white rounded-2xl p-3 sm:p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden"
                         style={{
                           animationDelay: `${index * 50}ms`
                         }}
                       >
                         <div className={`absolute inset-0 bg-gradient-to-br ${tip.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
-                        <div className="relative flex gap-3 sm:gap-4">
-                          <div className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br ${tip.color} flex items-center justify-center shadow-lg transform transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12`}>
-                            <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                        <div className="relative flex gap-2 sm:gap-4">
+                          <div className={`flex-shrink-0 w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br ${tip.color} flex items-center justify-center shadow-lg transform transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12`}>
+                            <Icon className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-start gap-2">
-                              <span className={`flex-shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br ${tip.color} text-white text-xs font-bold`}>
+                            <div className="flex items-start gap-1.5 sm:gap-2">
+                              <span className={`flex-shrink-0 inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br ${tip.color} text-white text-xs font-bold`}>
                                 {index + 1}
                               </span>
-                              <p className="text-sm sm:text-base text-gray-700 leading-relaxed break-words">
+                              <p className="text-xs sm:text-base text-gray-700 leading-relaxed break-words">
                                 {tip.text}
                               </p>
                             </div>
@@ -315,14 +337,14 @@ const HealthTips = () => {
                   })}
                 </div>
 
-                <div className="bg-gradient-to-r from-rose-50 via-pink-50 to-purple-50 border-2 border-rose-200 rounded-2xl p-6 sm:p-8 shadow-lg text-center mt-8 sm:mt-12">
-                  <div className="inline-block mb-4">
-                    <Heart className="h-10 w-10 sm:h-12 sm:w-12 text-rose-500 animate-pulse" />
+                <div className="bg-gradient-to-r from-rose-50 via-pink-50 to-purple-50 border-2 border-rose-200 rounded-2xl p-4 sm:p-8 shadow-lg text-center mt-6 sm:mt-12">
+                  <div className="inline-block mb-3 sm:mb-4">
+                    <Heart className="h-8 w-8 sm:h-12 sm:w-12 text-rose-500 animate-pulse" />
                   </div>
-                  <h3 className="font-bold text-lg sm:text-xl text-gray-900 mb-3">
+                  <h3 className="font-bold text-base sm:text-xl text-gray-900 mb-2 sm:mb-3">
                     Remember
                   </h3>
-                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed max-w-2xl mx-auto">
+                  <p className="text-xs sm:text-base text-gray-700 leading-relaxed max-w-2xl mx-auto">
                     Consistency matters more than perfection. Small, daily habits like mindful eating, movement, and rest can bring lasting change. Combine these tips with your doctor's advice for the best results.
                   </p>
                 </div>
@@ -331,6 +353,25 @@ const HealthTips = () => {
           </div>
         </div>
       </main>
+
+      {/* Important Notice - Moved above Footer */}
+      <div className="py-6 sm:py-12 px-3 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-2xl p-4 sm:p-6 shadow-lg">
+            <div className="flex gap-3 sm:gap-4">
+              <AlertCircle className="h-5 w-5 sm:h-7 sm:w-7 text-emerald-600 flex-shrink-0 mt-0.5 sm:mt-1" />
+              <div>
+                <h3 className="font-bold text-sm sm:text-lg text-gray-900 mb-1.5 sm:mb-2">
+                  Important: Diabetes Can Be Reversed
+                </h3>
+                <p className="text-xs sm:text-base text-gray-700 leading-relaxed">
+                  Studies show that with the right diet, exercise, and mindset, pre-diabetes and early-stage Type 2 diabetes can often be reversed. The following tips blend Ayurvedic wisdom with scientific guidance — but always consult your healthcare professional before making major lifestyle changes.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <Footer />
     </div>
