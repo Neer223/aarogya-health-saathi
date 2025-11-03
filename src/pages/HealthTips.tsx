@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Leaf, Dumbbell, AlertCircle, Sparkles, Heart, Moon, Droplets, Apple, Brain, Scale, Pill, TrendingDown, ChevronDown, ChevronUp } from 'lucide-react';
+import { Leaf, Dumbbell, AlertCircle, Sparkles, Heart, ChevronDown, ChevronUp } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import exerciseWalking from '@/assets/exercise-walking-improved.jpg';
@@ -103,16 +103,16 @@ const HealthTips = () => {
   ];
 
   const lifestyleTips = [
-    { text: 'Get 7–8 hours of sound sleep every night', icon: Moon, color: 'from-indigo-500 to-purple-500' },
-    { text: 'Manage stress with meditation or deep breathing', icon: Brain, color: 'from-pink-500 to-rose-500' },
-    { text: 'Stay hydrated — aim for 8–10 glasses of water daily', icon: Droplets, color: 'from-blue-500 to-cyan-500' },
-    { text: 'Avoid sugary drinks and processed foods', icon: AlertCircle, color: 'from-red-500 to-orange-500' },
-    { text: 'Eat smaller, balanced meals throughout the day', icon: Apple, color: 'from-green-500 to-emerald-500' },
-    { text: 'Include whole grains like millets, oats, and brown rice', icon: Sparkles, color: 'from-amber-500 to-yellow-500' },
-    { text: 'Limit alcohol and quit smoking for better health', icon: Heart, color: 'from-rose-500 to-pink-500' },
-    { text: 'Monitor your blood sugar levels regularly', icon: TrendingDown, color: 'from-violet-500 to-purple-500' },
-    { text: 'Maintain a healthy weight through diet and exercise', icon: Scale, color: 'from-teal-500 to-cyan-500' },
-    { text: 'Always take medications as advised by your doctor', icon: Pill, color: 'from-blue-500 to-indigo-500' },
+    { text: 'Get 7–8 hours of sound sleep every night', color: 'from-indigo-500 to-purple-500' },
+    { text: 'Manage stress with meditation or deep breathing', color: 'from-pink-500 to-rose-500' },
+    { text: 'Stay hydrated — aim for 8–10 glasses of water daily', color: 'from-blue-500 to-cyan-500' },
+    { text: 'Avoid sugary drinks and processed foods', color: 'from-red-500 to-orange-500' },
+    { text: 'Eat smaller, balanced meals throughout the day', color: 'from-green-500 to-emerald-500' },
+    { text: 'Include whole grains like millets, oats, and brown rice', color: 'from-amber-500 to-yellow-500' },
+    { text: 'Limit alcohol and quit smoking for better health', color: 'from-rose-500 to-pink-500' },
+    { text: 'Monitor your blood sugar levels regularly', color: 'from-violet-500 to-purple-500' },
+    { text: 'Maintain a healthy weight through diet and exercise', color: 'from-teal-500 to-cyan-500' },
+    { text: 'Always take medications as advised by your doctor', color: 'from-blue-500 to-indigo-500' },
   ];
 
   return (
@@ -307,30 +307,21 @@ const HealthTips = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
                   {lifestyleTips.map((tip, index) => {
-                    const Icon = tip.icon;
                     return (
                       <div
                         key={index}
-                        className="group relative bg-white rounded-2xl p-3 sm:p-6 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden"
+                        className="group relative bg-white rounded-xl p-4 sm:p-5 shadow-md hover:shadow-lg transition-all duration-200 border border-gray-100"
                         style={{
                           animationDelay: `${index * 50}ms`
                         }}
                       >
-                        <div className={`absolute inset-0 bg-gradient-to-br ${tip.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
-                        <div className="relative flex gap-2 sm:gap-4">
-                          <div className={`flex-shrink-0 w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br ${tip.color} flex items-center justify-center shadow-lg transform transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12`}>
-                            <Icon className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start gap-1.5 sm:gap-2">
-                              <span className={`flex-shrink-0 inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br ${tip.color} text-white text-xs font-bold`}>
-                                {index + 1}
-                              </span>
-                              <p className="text-xs sm:text-base text-gray-700 leading-relaxed break-words">
-                                {tip.text}
-                              </p>
-                            </div>
-                          </div>
+                        <div className="flex items-start gap-3">
+                          <span className="flex-shrink-0 text-gray-400 font-medium text-sm sm:text-base mt-0.5">
+                            {index + 1}.
+                          </span>
+                          <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+                            {tip.text}
+                          </p>
                         </div>
                       </div>
                     );

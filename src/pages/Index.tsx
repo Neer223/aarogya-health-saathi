@@ -1,6 +1,6 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Activity, Heart, Leaf, Shield } from 'lucide-react';
+import { Activity, Heart, Leaf, Shield, AlertCircle, Sparkles } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -84,17 +84,17 @@ const HeroSlider = () => {
       {/* Navigation Arrows */}
       <button
         onClick={prevSlide}
-        className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center transition-all shadow-lg hover:shadow-xl z-10 backdrop-blur-sm"
+        className="absolute left-1 sm:left-4 top-[60%] sm:top-1/2 -translate-y-1/2 w-8 h-8 sm:w-12 sm:h-12 bg-white/80 hover:bg-white rounded-full flex items-center justify-center transition-all shadow-lg hover:shadow-xl z-10 backdrop-blur-sm"
         aria-label="Previous slide"
       >
-        <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600" />
+        <ChevronLeft className="h-4 w-4 sm:h-6 sm:w-6 text-emerald-600" />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center transition-all shadow-lg hover:shadow-xl z-10 backdrop-blur-sm"
+        className="absolute right-1 sm:right-4 top-[60%] sm:top-1/2 -translate-y-1/2 w-8 h-8 sm:w-12 sm:h-12 bg-white/80 hover:bg-white rounded-full flex items-center justify-center transition-all shadow-lg hover:shadow-xl z-10 backdrop-blur-sm"
         aria-label="Next slide"
       >
-        <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600" />
+        <ChevronRight className="h-4 w-4 sm:h-6 sm:w-6 text-emerald-600" />
       </button>
 
       {/* Dots Indicator */}
@@ -144,6 +144,14 @@ const Index = () => {
     },
   ];
 
+  const benefits = [
+    { icon: '📊', text: 'Track your health and identify early risk factors' },
+    { icon: '🌿', text: 'Learn simple, effective Ayurvedic home remedies' },
+    { icon: '🥗', text: 'Find diabetes-friendly foods, herbs, and recipes' },
+    { icon: '🧘', text: 'Understand how yoga and exercise improve insulin response' },
+    { icon: '💡', text: 'Get lifestyle tips designed for your unique needs' },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
@@ -191,28 +199,56 @@ const Index = () => {
         {/* Information Section */}
         <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-white">
           <div className="max-w-4xl mx-auto">
-            <Card className="border-2 border-emerald-200 shadow-xl bg-gradient-to-br from-emerald-50/30 via-white to-teal-50/30">
+            <Card className="border-2 border-emerald-200 shadow-xl bg-gradient-to-br from-emerald-50/30 via-white to-teal-50/30 overflow-hidden">
               <CardContent className="pt-6 pb-6 px-4 sm:px-6 md:px-8">
+                <div className="flex items-center justify-center mb-4 sm:mb-6">
+                  <Sparkles className="h-8 w-8 sm:h-10 sm:w-10 text-emerald-600 animate-pulse" />
+                </div>
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-4 sm:mb-6 text-center">
-                  Taking Charge of Your Health
+                  Transform Your Health Journey
                 </h2>
-                <div className="space-y-3 sm:space-y-4 text-gray-700">
+                <div className="space-y-4 sm:space-y-5 text-gray-700">
                   <p className="text-sm sm:text-base leading-relaxed">
                     Diabetes affects millions of people worldwide — but the encouraging truth is that it can often be prevented, and even reversed, especially in the early stages. Through natural remedies, mindful nutrition, regular movement, and stress-free living, you can take meaningful steps toward better health.
                   </p>
-                  <p className="text-sm sm:text-base leading-relaxed">
-                    With DiabetesCare, you'll be able to:
-                  </p>
-                  <ul className="list-disc list-inside space-y-2 ml-2 sm:ml-4 text-sm sm:text-base">
-                    <li>Track your health and identify early risk factors</li>
-                    <li>Learn simple, effective Ayurvedic home remedies</li>
-                    <li>Find diabetes-friendly foods, herbs, and recipes</li>
-                    <li>Understand how yoga and exercise improve insulin response</li>
-                    <li>Get lifestyle tips designed for your unique needs</li>
-                  </ul>
-                  <p className="text-xs sm:text-sm italic text-center pt-3 sm:pt-4 border-t-2 border-emerald-200 mt-4 sm:mt-6 text-gray-600">
-                    Note: This platform is for educational and lifestyle support purposes only. Please consult a qualified healthcare professional before making medical decisions.
-                  </p>
+                  
+                  <div className="pt-2">
+                    <p className="text-sm sm:text-base font-semibold text-gray-900 mb-3 sm:mb-4">
+                      With DiabetesCare, you'll be able to:
+                    </p>
+                    <div className="grid grid-cols-1 gap-2 sm:gap-3">
+                      {benefits.map((benefit, index) => (
+                        <div 
+                          key={index}
+                          className="flex items-start gap-3 p-3 rounded-lg bg-gradient-to-r from-emerald-50/50 to-teal-50/50 hover:from-emerald-100/50 hover:to-teal-100/50 transition-all duration-200 group"
+                        >
+                          <span className="text-2xl flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                            {benefit.icon}
+                          </span>
+                          <p className="text-sm sm:text-base text-gray-700 leading-relaxed pt-0.5">
+                            {benefit.text}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Disclaimer Box */}
+                  <div className="mt-6 sm:mt-8 pt-4 sm:pt-6">
+                    <div className="bg-amber-50 border-l-4 border-amber-400 rounded-r-lg p-4 sm:p-5 shadow-sm">
+                      <div className="flex gap-3">
+                        <AlertCircle className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <h4 className="font-semibold text-sm sm:text-base text-gray-900 mb-1.5">
+                            Important Note
+                          </h4>
+                          <p className="text-xs sm:text-sm text-gray-700 leading-relaxed">
+                            This platform is for educational and lifestyle support purposes only. Please consult a qualified healthcare professional before making medical decisions.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
