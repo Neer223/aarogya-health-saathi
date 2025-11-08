@@ -152,7 +152,7 @@ const DiabetesForm = ({ gender, onSubmit }: DiabetesFormProps) => {
       };
 
       // Make the API call
-      const response = await fetch('http://localhost:5000/predict', {
+      const response = await fetch('https://aarogya-health-saathi-1.onrender.com/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
