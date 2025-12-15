@@ -1,15 +1,16 @@
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import { Activity, Heart, Leaf, Shield, AlertCircle, Sparkles, ChevronDown, Calculator, TrendingUp, BookOpen } from 'lucide-react';
+import { Activity, Heart, Leaf, Shield, AlertCircle, Sparkles, ChevronDown, Calculator, TrendingUp, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+// Import your actual images here
 import heroSlide1 from '@/assets/hero-slide-1.jpg';
 import heroSlide2 from '@/assets/hero-slide-2.jpg';
 import heroSlide3 from '@/assets/hero-slide-3.jpg';
 import yogaPerson from '@/assets/yoga-person.gif';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 const slides = [
   {
@@ -29,9 +30,10 @@ const slides = [
   },
 ];
 
+
+
 const HeroSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -72,7 +74,6 @@ const HeroSlider = () => {
                 </p>
                 <Button
                   className="text-sm xs:text-base sm:text-lg px-6 xs:px-8 sm:px-12 py-2.5 xs:py-3 sm:py-4 h-auto rounded-lg bg-white text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
-                  onClick={() => navigate('/tracker')}
                 >
                   Get Started
                 </Button>
@@ -118,68 +119,14 @@ const HeroSlider = () => {
 };
 
 const Index = () => {
-  const [expandedCard, setExpandedCard] = useState(null);
   const navigate = useNavigate();
-
-  const features = [
-    {
-      icon: Heart,
-      title: 'Natural Healing',
-      description: 'Combining Ayurveda with modern science for natural diabetes support.',
-    },
-    {
-      icon: Activity,
-      title: 'Risk Assessment',
-      description: 'Smart health tracker to identify and manage diabetes risk early.',
-    },
-    {
-      icon: Leaf,
-      title: 'Ayurvedic Remedies',
-      description: 'Traditional Indian remedies and natural foods for diabetes management.',
-    },
-    {
-      icon: Shield,
-      title: 'Prevention Focus',
-      description: 'Simple lifestyle changes to reverse early-stage diabetes.',
-    },
-  ];
-
-  const howToUseSteps = [
-    {
-      icon: Calculator,
-      title: 'Enter Your Health Data',
-      description: 'Input basic health metrics like age, weight, blood sugar levels, and family history using our simple and intuitive form.',
-    },
-    {
-      icon: TrendingUp,
-      title: 'Get Risk Assessment',
-      description: 'Our AI-ML powered system analyzes your data and provides a personalized diabetes risk score with detailed insights.',
-    },
-    {
-      icon: BookOpen,
-      title: 'Follow Personalized Tips',
-      description: 'Receive customized Ayurvedic remedies, diet plans, and lifestyle recommendations based on your risk level.',
-    },
-    {
-      icon: Activity,
-      title: 'Track Your Progress',
-      description: 'Monitor your health journey over time and see improvements as you follow the recommended lifestyle changes.',
-    },
-  ];
-
+  
   const benefits = [
     { icon: '📊', text: 'Track health and identify risk factors' },
     { icon: '🌿', text: 'Learn Ayurvedic remedies' },
     { icon: '🥗', text: 'Discover diabetes-friendly foods' },
     { icon: '🧘', text: 'Improve insulin response through yoga' },
   ];
-
-  const toggleCard = (cardId) => {
-    // Only toggle on mobile (screens smaller than 640px - sm breakpoint)
-    if (window.innerWidth < 640) {
-      setExpandedCard(expandedCard === cardId ? null : cardId);
-    }
-  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -191,126 +138,208 @@ const Index = () => {
           <HeroSlider />
         </section>
 
-        {/* Features Section */}
-        <section className="py-8 xs:py-10 sm:py-12 md:py-16 px-3 xs:px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 mt-6 xs:mt-8 sm:mt-12">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-6 xs:mb-8 sm:mb-12">
-              <h2 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 xs:mb-3 sm:mb-4 px-2">
-                Why Choose DiabetesCare?
-              </h2>
-              <p className="text-sm xs:text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-3 xs:px-4">
-                Ancient Ayurvedic wisdom meets modern medical knowledge.
-              </p>
-            </div>
+        {/* How to Use Section - Inspired by Multi Lingual design */}
+        <section className="py-12 xs:py-16 sm:py-20 md:py-24 px-4 xs:px-6 sm:px-8 lg:px-12 bg-white">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+              {/* Left Side - Phone Mockup with Steps */}
+              <div className="relative">
+                <div className="relative mx-auto max-w-sm">
+                  {/* Phone Frame */}
+                  <div className="relative bg-black rounded-[3rem] p-3 shadow-2xl">
+                    <div className="bg-white rounded-[2.5rem] overflow-hidden">
+                      {/* Phone Screen Content */}
+                      <div className="bg-gradient-to-br from-emerald-500 to-teal-600 px-6 py-8 text-white">
+                        <div className="text-sm mb-2">Today, {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</div>
+                        <div className="text-4xl font-bold mb-2">Risk Score</div>
+                        <div className="text-6xl font-bold mb-1">Low</div>
+                        <div className="text-sm opacity-90">Keep up the good work!</div>
+                      </div>
+                      
+                      {/* Menu Items */}
+                      <div className="bg-white p-6 space-y-4">
+                        <div 
+                          onClick={() => navigate('/tracker')}
+                          className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                              <Calculator className="h-5 w-5 text-emerald-600" />
+                            </div>
+                            <span className="font-medium text-gray-900">Health Assessment</span>
+                          </div>
+                          <ChevronRight className="h-5 w-5 text-gray-400" />
+                        </div>
+                        
+                        <div 
+                          onClick={() => navigate('/health-tips')}
+                          className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
+                              <Leaf className="h-5 w-5 text-teal-600" />
+                            </div>
+                            <span className="font-medium text-gray-900">Ayurvedic Tips</span>
+                          </div>
+                          <ChevronRight className="h-5 w-5 text-gray-400" />
+                        </div>
+                        
+                        <div 
+                          onClick={() => navigate('/track-progress')}
+                          className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-cyan-100 rounded-full flex items-center justify-center">
+                              <Activity className="h-5 w-5 text-cyan-600" />
+                            </div>
+                            <span className="font-medium text-gray-900">Track Progress</span>
+                          </div>
+                          <ChevronRight className="h-5 w-5 text-gray-400" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-              {features.map((feature, index) => {
-                const Icon = feature.icon;
-                const isExpanded = expandedCard === `feature-${index}`;
-                
-                return (
-                  <Card
-                    key={index}
-                    className="border-2 border-emerald-200 hover:border-emerald-400 transition-all duration-300 hover:shadow-xl group bg-white cursor-pointer sm:cursor-default"
-                    onClick={() => toggleCard(`feature-${index}`)}
-                  >
-                    <CardContent className="pt-3 pb-3 xs:pt-4 xs:pb-4 px-2 xs:px-3 sm:px-6 text-center">
-                      <div className="w-8 h-8 xs:w-10 xs:h-10 sm:w-14 sm:h-14 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center mx-auto mb-2 xs:mb-2 sm:mb-4 group-hover:from-emerald-200 group-hover:to-teal-200 transition-all duration-300 transform group-hover:scale-110">
-                        <Icon className="h-4 w-4 xs:h-5 xs:w-5 sm:h-7 sm:w-7 text-emerald-600" />
-                      </div>
-                      <h3 className="text-xs xs:text-sm sm:text-xl font-semibold text-gray-900 mb-1 xs:mb-2">{feature.title}</h3>
-                      
-                      {/* Description - hidden only on small mobile unless expanded, always visible on tablet and desktop */}
-                      <div className={`overflow-hidden transition-all duration-300 ${
-                        isExpanded ? 'max-h-40' : 'max-h-0 sm:max-h-none'
-                      }`}>
-                        <p className="text-xs sm:text-base text-gray-600 leading-relaxed mt-1 xs:mt-2">{feature.description}</p>
-                      </div>
-                      
-                      {/* Expand icon - only visible on small mobile */}
-                      <div className="sm:hidden mt-1 xs:mt-2">
-                        <ChevronDown className={`h-3 w-3 xs:h-4 xs:w-4 mx-auto text-emerald-600 transition-transform duration-300 ${
-                          isExpanded ? 'rotate-180' : ''
-                        }`} />
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+              {/* Right Side - Content */}
+              <div>
+                <div className="mb-8">
+                  <h2 className="text-4xl xs:text-5xl sm:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+                    Making wellness <span className="text-emerald-600">accessible</span> since 2024
+                  </h2>
+                </div>
+
+                <div className="space-y-8">
+                  {/* For Users */}
+                  <div className="border-l-4 border-emerald-500 pl-6">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3">For Everyone</h3>
+                    <p className="text-lg text-gray-600 leading-relaxed">
+                      We combine ancient Ayurvedic wisdom with modern health tracking to help you prevent and manage diabetes naturally. Get personalized insights that become your daily wellness companion.
+                    </p>
+                  </div>
+
+                  {/* For Health-Conscious */}
+                  <div className="border-l-4 border-teal-500 pl-6">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3">For Your Journey</h3>
+                    <p className="text-lg text-gray-600 leading-relaxed">
+                      Track your health metrics in real-time, get AI-powered risk assessments, and receive customized Ayurvedic remedies to optimize your wellness and prevent diabetes effectively.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* How to Use Section */}
-        <section className="py-8 xs:py-10 sm:py-12 md:py-16 px-3 xs:px-4 sm:px-6 lg:px-8 bg-white mt-6 xs:mt-8 sm:mt-12">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-6 xs:mb-8 sm:mb-12">
-              <h2 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 xs:mb-3 sm:mb-4 px-2">
-                How to Use DiabetesCare
+        {/* Features Section - Blog Style Cards */}
+        <section id="features" className="py-12 xs:py-16 sm:py-20 md:py-24 px-4 xs:px-6 sm:px-8 lg:px-12 bg-gray-50">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-12">
+              <h2 className="text-4xl xs:text-5xl sm:text-6xl font-bold text-gray-900 mb-4">
+                Your Wellness Toolkit
               </h2>
-              <p className="text-sm xs:text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-3 xs:px-4">
-                Get started in four simple steps
+              <p className="text-lg text-gray-600 max-w-2xl">
+                Natural solutions for a healthier tomorrow
               </p>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-              {howToUseSteps.map((step, index) => {
-                const Icon = step.icon;
-                const isExpanded = expandedCard === `step-${index}`;
-                
-                return (
-                  <Card
-                    key={index}
-                    className="border-2 border-teal-200 hover:border-teal-400 transition-all duration-300 hover:shadow-xl group bg-white cursor-pointer sm:cursor-default"
-                    onClick={() => toggleCard(`step-${index}`)}
-                  >
-                    <CardContent className="pt-3 pb-3 xs:pt-4 xs:pb-4 px-2 xs:px-3 sm:px-6 text-center">
-                      <div className="relative inline-block mb-2 xs:mb-2 sm:mb-4">
-                        <div className="w-8 h-8 xs:w-10 xs:h-10 sm:w-14 sm:h-14 bg-gradient-to-br from-teal-100 to-cyan-100 rounded-full flex items-center justify-center group-hover:from-teal-200 group-hover:to-cyan-200 transition-all duration-300 transform group-hover:scale-110">
-                          <Icon className="h-4 w-4 xs:h-5 xs:w-5 sm:h-7 sm:w-7 text-teal-600" />
-                        </div>
-                        <div className="absolute -top-1 -right-1 w-5 h-5 xs:w-6 xs:h-6 bg-emerald-500 text-white rounded-full flex items-center justify-center font-bold text-xs shadow-lg">
-                          {index + 1}
-                        </div>
-                      </div>
-                      <h3 className="text-xs xs:text-sm sm:text-xl font-semibold text-gray-900 mb-1 xs:mb-2">{step.title}</h3>
-                      
-                      {/* Description - hidden only on small mobile unless expanded, always visible on tablet and desktop */}
-                      <div className={`overflow-hidden transition-all duration-300 ${
-                        isExpanded ? 'max-h-40' : 'max-h-0 sm:max-h-none'
-                      }`}>
-                        <p className="text-xs sm:text-base text-gray-600 leading-relaxed mt-1 xs:mt-2">{step.description}</p>
-                      </div>
-                      
-                      {/* Expand icon - only visible on small mobile */}
-                      <div className="sm:hidden mt-1 xs:mt-2">
-                        <ChevronDown className={`h-3 w-3 xs:h-4 xs:w-4 mx-auto text-teal-600 transition-transform duration-300 ${
-                          isExpanded ? 'rotate-180' : ''
-                        }`} />
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+              {/* Feature Card 1 - Health Tips */}
+              <div className="group cursor-pointer" onClick={() => navigate('/health-tips')}>
+                <div className="rounded-2xl overflow-hidden mb-6 h-64 shadow-lg relative transform transition-all duration-300 group-hover:scale-105">
+                  <img 
+                    src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&h=600&fit=crop&q=80"
+                    alt="Fresh healthy vegetables and herbs"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/80 via-emerald-900/40 to-transparent"></div>
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <span className="inline-block px-3 py-1 bg-emerald-500 text-white text-xs font-semibold rounded-full mb-2">
+                      Natural Remedies
+                    </span>
+                  </div>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-emerald-600 transition-colors">
+                  Herbal Healing
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Discover time-tested herbal remedies and natural solutions to manage blood sugar levels effectively
+                </p>
+                <div className="flex items-center gap-2 text-emerald-600 font-semibold">
+                  <span>Explore Remedies</span>
+                  <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+
+              {/* Feature Card 2 - Diabetes Tracker */}
+              <div className="group cursor-pointer" onClick={() => navigate('/tracker')}>
+                <div className="rounded-2xl overflow-hidden mb-6 h-64 shadow-lg relative transform transition-all duration-300 group-hover:scale-105">
+                  <img 
+                    src="https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=800&h=600&fit=crop&q=80"
+                    alt="Green leafy vegetables and healthy food"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-teal-900/80 via-teal-900/40 to-transparent"></div>
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <span className="inline-block px-3 py-1 bg-teal-500 text-white text-xs font-semibold rounded-full mb-2">
+                      Smart Assessment
+                    </span>
+                  </div>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-emerald-600 transition-colors">
+                  Risk Analysis
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Get instant diabetes risk assessment with personalized recommendations based on your health metrics
+                </p>
+                <div className="flex items-center gap-2 text-emerald-600 font-semibold">
+                  <span>Start Assessment</span>
+                  <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+
+              {/* Feature Card 3 - Track Progress */}
+              <div className="group cursor-pointer" onClick={() => navigate('/track-progress')}>
+                <div className="rounded-2xl overflow-hidden mb-6 h-64 shadow-lg relative transform transition-all duration-300 group-hover:scale-105">
+                  <img 
+                    src="https://images.unsplash.com/photo-1490818387583-1baba5e638af?w=800&h=600&fit=crop&q=80"
+                    alt="Fresh green plants and natural wellness"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-cyan-900/80 via-cyan-900/40 to-transparent"></div>
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <span className="inline-block px-3 py-1 bg-cyan-500 text-white text-xs font-semibold rounded-full mb-2">
+                      Health Journey
+                    </span>
+                  </div>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-emerald-600 transition-colors">
+                  Track Progress
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Track your health metrics over time and celebrate milestones on your path to diabetes prevention
+                </p>
+                <div className="flex items-center gap-2 text-emerald-600 font-semibold">
+                  <span>View Progress</span>
+                  <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Information Section with GIF */}
-        <section className="py-8 xs:py-10 sm:py-12 md:py-16 px-3 xs:px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 mt-6 xs:mt-8 sm:mt-12">
+        {/* Information Section with Image */}
+        <section id="about" className="py-8 xs:py-10 sm:py-12 md:py-16 px-3 xs:px-4 sm:px-6 lg:px-8 bg-white mt-6 xs:mt-8 sm:mt-12">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 xs:gap-6 lg:gap-8 items-start">
-              {/* GIF Container - Always on Left - Takes 2 columns on large screens */}
+              {/* Image Container - Always on Left - Takes 2 columns on large screens */}
               <div className="lg:col-span-2">
                 <div className="relative rounded-xl xs:rounded-2xl overflow-hidden shadow-2xl border-2 xs:border-4 border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 lg:sticky lg:top-4">
                   <img
                     src={yogaPerson}
                     alt="Person practicing yoga meditation"
                     className="w-full h-auto object-cover"
-                    style={{
-                      filter: 'hue-rotate(10deg) saturate(1.0) brightness(0.95)',
-                      mixBlendMode: 'multiply'
-                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-cyan-500/10 pointer-events-none"></div>
                 </div>

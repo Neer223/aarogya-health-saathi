@@ -3,83 +3,61 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { DiabetesFormData, Gender } from '@/types/diabetes';
-import { Calculator, Info, Loader2 } from 'lucide-react';
+import { Calculator, Info, Loader2, ChevronRight, ChevronLeft, User, Heart, Activity } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import ResultDialog from './ResultDialog';
 
-interface DiabetesFormProps {
-  gender: Gender;
-  onSubmit: (data: DiabetesFormData) => void;
-}
-
-const DiabetesForm = ({ gender, onSubmit }: DiabetesFormProps) => {
-  const [formData, setFormData] = useState<DiabetesFormData>({
+const DiabetesForm = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [formData, setFormData] = useState({
     name: '',
     age: '',
-    gender,
-    glucose: '',
-    insulin: '',
+    gender: '',
+    hypertension: '',
+    heartDisease: '',
+    smokingHistory: '',
     bmi: '',
-    diabetesPedigree: '',
-    skinThickness: '',
-    pregnancies: gender === 'female' ? '' : undefined,
+    hbA1c: '',
+    bloodGlucose: '',
   });
-  
-  const [unknownFields, setUnknownFields] = useState<Record<string, boolean>>({
-    glucose: false,
-    insulin: false,
-    diabetesPedigree: false,
-    skinThickness: false,
-  });
-  
-  const [showEstimator, setShowEstimator] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [prediction, setPrediction] = useState<string | null>(null);
 
-  // BMI Calculator states
+  const [showEstimator, setShowEstimator] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [weight, setWeight] = useState('');
   const [height, setHeight] = useState('');
 
-  // Pedigree estimator states
-  const [familyHistory, setFamilyHistory] = useState({
-    parents: false,
-    siblings: false,
-    grandparents: false,
-    none: false,
-  });
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [riskPercentage, setRiskPercentage] = useState(0);
+  const [riskCategory, setRiskCategory] = useState('');
 
-  const handleChange = (field: keyof DiabetesFormData, value: string) => {
+  const smokingOptions = [
+    { value: '', label: 'Select smoking history' },
+    { value: 'never', label: 'Never' },
+    { value: 'former', label: 'Former' },
+    { value: 'current', label: 'Current' },
+    { value: 'not current', label: 'Not Current' },
+    { value: 'ever', label: 'Ever' },
+    { value: 'No Info', label: 'No Info' },
+  ];
+
+  const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleUnknownToggle = (field: string) => {
-    setUnknownFields(prev => {
-      const newState = { ...prev, [field]: !prev[field] };
-      
-      // If checking "unknown", set estimated values
-      if (newState[field]) {
-        switch(field) {
-          case 'glucose':
-            handleChange('glucose', '100');
-            break;
-          case 'insulin':
-            handleChange('insulin', '80');
-            break;
-          case 'diabetesPedigree':
-            const score = calculatePedigreeScore();
-            handleChange('diabetesPedigree', score.toString());
-            break;
-          case 'skinThickness':
-            handleChange('skinThickness', '20');
-            break;
-        }
-      } else {
-        handleChange(field as keyof DiabetesFormData, '');
-      }
-      
-      return newState;
-    });
+  const calculateHbA1c = (glucose) => {
+    if (!glucose || glucose === '') return '';
+    const glucoseNum = parseFloat(glucose);
+    const hbA1c = (glucoseNum + 46.7) / 28.7;
+    return hbA1c.toFixed(1);
+  };
+
+  const handleBloodGlucoseChange = (value) => {
+    handleChange('bloodGlucose', value);
+    if (value) {
+      const calculatedHbA1c = calculateHbA1c(value);
+      handleChange('hbA1c', calculatedHbA1c);
+    }
   };
 
   const calculateBMI = () => {
@@ -95,424 +73,442 @@ const DiabetesForm = ({ gender, onSubmit }: DiabetesFormProps) => {
     }
   };
 
-  const handleFamilyHistoryChange = (field: keyof typeof familyHistory, checked: boolean) => {
-    if (field === 'none' && checked) {
-      // If "None of the above" is checked, uncheck all others
-      setFamilyHistory({
-        parents: false,
-        siblings: false,
-        grandparents: false,
-        none: true,
-      });
-    } else if (field !== 'none' && checked) {
-      // If any specific option is checked, uncheck "None of the above"
-      setFamilyHistory(prev => ({ ...prev, [field]: checked, none: false }));
-    } else {
-      // Normal uncheck
-      setFamilyHistory(prev => ({ ...prev, [field]: checked }));
-    }
-  };
-
-  const calculatePedigreeScore = () => {
-    let score = 0.078; // Base score
-    if (familyHistory.parents) score += 0.3;
-    if (familyHistory.siblings) score += 0.2;
-    if (familyHistory.grandparents) score += 0.1;
-    return score.toFixed(3);
-  };
-
-  const applyPedigreeScore = () => {
-    const score = calculatePedigreeScore();
-    handleChange('diabetesPedigree', score);
-    setShowEstimator(null);
-    // Reset family history checkboxes
-    setFamilyHistory({
-      parents: false,
-      siblings: false,
-      grandparents: false,
-      none: false,
-    });
-  };
-
   const handleSubmit = async () => {
     setIsLoading(true);
     setError(null);
-    setPrediction(null);
 
     try {
-      // Prepare the API payload matching your backend format
       const apiPayload = {
-        Name: formData.name,
-        Age: parseInt(formData.age),
-        "Glucose level (mg/dl)": parseFloat(formData.glucose),
-        "Insulin Level (μU/mL)": parseFloat(formData.insulin),
-        BMI: parseFloat(formData.bmi),
-        "Diabetes Pedigree": parseFloat(formData.diabetesPedigree),
-        "Skin Thickness (mm)": parseFloat(formData.skinThickness),
+        age: parseInt(formData.age),
+        gender: formData.gender,
+        hypertension: formData.hypertension === 'yes' ? 1 : 0,
+        heart_disease: formData.heartDisease === 'yes' ? 1 : 0,
+        smoking_history: formData.smokingHistory,
+        bmi: parseFloat(formData.bmi),
+        HbA1c_level: parseFloat(formData.hbA1c),
+        blood_glucose_level: parseFloat(formData.bloodGlucose),
       };
 
-      // Make the API call
-      const response = await fetch('https://aarogya-health-saathi-1.onrender.com/predict', {
+      console.log('Sending to API:', apiPayload);
+
+      const response = await fetch('http://localhost:5000/predict', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(apiPayload),
       });
 
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status} ${response.statusText}`);
-      }
+      if (!response.ok) throw new Error(`API error: ${response.status} ${response.statusText}`);
 
       const result = await response.json();
-      
-      // Set the prediction result
-      setPrediction(result.prediction);
-      
-      // Also call the parent's onSubmit if needed
-      onSubmit(formData);
-      
+
+      console.log('API Response:', result);
+
+      if (!result.success) {
+        throw new Error(result.error || 'Prediction failed');
+      }
+
+      const percentage = result.risk_percentage || 0;
+      const category = result.risk_category || 'Unknown';
+
+      console.log('Setting dialog with:', { percentage, category });
+
+      setRiskPercentage(percentage);
+      setRiskCategory(category);
+      setDialogOpen(true);
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to get prediction. Please try again.');
-      console.error('API Error:', err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const isFormValid = () => {
-    const requiredFields: (keyof DiabetesFormData)[] = [
-      'name',
-      'age',
-      'glucose',
-      'insulin',
-      'bmi',
-      'diabetesPedigree',
-      'skinThickness',
-    ];
+  const isPage1Valid = () => formData.name && formData.age;
+  const isPage2Valid = () => formData.gender;
+  const isPage3Valid = () => formData.hypertension && formData.heartDisease;
+  const isPage4Valid = () => formData.smokingHistory && formData.bmi && formData.hbA1c && formData.bloodGlucose;
 
-    if (gender === 'female') {
-      requiredFields.push('pregnancies');
-    }
-
-    return requiredFields.every((field) => formData[field] && formData[field]?.toString().trim() !== '');
+  const nextPage = () => {
+    if (currentPage === 1 && isPage1Valid()) setCurrentPage(2);
+    else if (currentPage === 2 && isPage2Valid()) setCurrentPage(3);
+    else if (currentPage === 3 && isPage3Valid()) setCurrentPage(4);
   };
 
+  const prevPage = () => { if (currentPage > 1) setCurrentPage(currentPage - 1); };
+
+  const getPageStyles = () => {
+    switch (currentPage) {
+      case 1: return {
+        bgGradient: 'from-blue-50 via-cyan-50 to-teal-50',
+        headerGradient: 'from-cyan-500 to-teal-600',
+        borderColor: 'border-cyan-200',
+        iconBg: 'bg-cyan-100',
+        iconColor: 'text-cyan-600',
+        buttonBg: 'bg-teal-600 hover:bg-teal-700',
+        focusBorder: 'border-cyan-200 focus:border-cyan-400',
+        focusRing: 'focus:ring-teal-500',
+      };
+      case 2: return {
+        bgGradient: 'from-indigo-50 via-blue-50 to-sky-50',
+        headerGradient: 'from-indigo-500 to-blue-600',
+        borderColor: 'border-indigo-200',
+        iconBg: 'bg-indigo-100',
+        iconColor: 'text-indigo-600',
+        buttonBg: 'bg-indigo-600 hover:bg-indigo-700',
+        focusBorder: 'border-indigo-200 focus:border-indigo-400',
+        focusRing: 'focus:ring-indigo-500',
+      };
+      case 3: return {
+        bgGradient: 'from-rose-50 via-pink-50 to-orange-50',
+        headerGradient: 'from-pink-500 to-rose-600',
+        borderColor: 'border-pink-200',
+        iconBg: 'bg-rose-100',
+        iconColor: 'text-rose-600',
+        buttonBg: 'bg-rose-600 hover:bg-rose-700',
+        focusBorder: 'border-pink-200 focus:border-pink-400',
+        focusRing: 'focus:ring-rose-500',
+      };
+      case 4: return {
+        bgGradient: 'from-violet-50 via-purple-50 to-fuchsia-50',
+        headerGradient: 'from-violet-500 to-purple-600',
+        borderColor: 'border-violet-200',
+        iconBg: 'bg-violet-100',
+        iconColor: 'text-violet-600',
+        buttonBg: 'bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700',
+        focusBorder: 'border-violet-200 focus:border-violet-400',
+        focusRing: 'focus:ring-violet-500',
+      };
+    }
+  };
+
+  const styles = getPageStyles();
+
   return (
-    <div className="animate-in fade-in slide-in-from-bottom duration-700">
-      <Card className="max-w-3xl mx-auto border-2 border-emerald-200 shadow-2xl">
-        <CardHeader className="bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 border-b-2 border-emerald-200">
-          <CardTitle className="text-2xl sm:text-3xl text-center text-gray-900 font-bold">
-            Diabetes Risk Assessment
-          </CardTitle>
-          <p className="text-center text-gray-600 mt-2 text-sm sm:text-base">
-            Please fill in your health information accurately
-          </p>
-        </CardHeader>
-        <CardContent className="pt-8 pb-8 px-4 sm:px-6 bg-gradient-to-br from-emerald-50/30 via-white to-teal-50/30">
-          <Alert className="mb-6 border-blue-200 bg-blue-50">
-            <Info className="h-4 w-4 text-blue-600" />
-            <AlertDescription className="text-sm text-gray-700">
-              Don't know some values? Check the "Don't know" box and we'll use estimated values based on averages.
-            </AlertDescription>
-          </Alert>
-
-          {/* Error Alert */}
-          {error && (
-            <Alert className="mb-6 border-red-200 bg-red-50">
-              <AlertDescription className="text-sm text-red-700">
-                {error}
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {/* Prediction Result */}
-          {prediction && (
-            <Alert className={`mb-6 ${prediction === 'High Risk' ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50'}`}>
-              <AlertDescription className={`text-sm font-semibold ${prediction === 'High Risk' ? 'text-red-700' : 'text-green-700'}`}>
-                Prediction Result: {prediction}
-              </AlertDescription>
-            </Alert>
-          )}
-
-          <div className="space-y-8">
-            {/* Personal Information */}
-            <div className="space-y-4">
-              <h3 className="font-semibold text-lg text-gray-900">
-                <span className="text-emerald-600">Personal Information</span>
-              </h3>
-            
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name *</Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    placeholder="Enter your full name"
-                    value={formData.name}
-                    onChange={(e) => handleChange('name', e.target.value)}
-                  />
-                </div>
-              
-                <div className="space-y-2">
-                  <Label htmlFor="age">Age *</Label>
-                  <Input
-                    id="age"
-                    type="number"
-                    placeholder="Your age"
-                    value={formData.age}
-                    onChange={(e) => handleChange('age', e.target.value)}
-                    min="1"
-                    max="120"
-                  />
-                </div>
-              </div>
+    <>
+      <div className={`min-h-screen bg-gradient-to-br ${styles.bgGradient} py-8 px-4 transition-all duration-700`}>
+        <Card className={`max-w-3xl mx-auto border-2 ${styles.borderColor} shadow-2xl`}>
+          <CardHeader className={`bg-gradient-to-r ${styles.headerGradient} text-white border-b-2`}>
+            <CardTitle className="text-3xl text-center font-bold">Diabetes Risk Assessment</CardTitle>
+            <p className="text-center text-white/90 mt-2">Step {currentPage} of 4</p>
+            <div className="mt-4 bg-white/20 rounded-full h-2 overflow-hidden">
+              <div className="bg-white h-full transition-all duration-500" style={{ width: `${(currentPage / 4) * 100}%` }} />
             </div>
+          </CardHeader>
 
-            {/* Health Metrics */}
-            <div className="space-y-4">
-              <h3 className="font-semibold text-lg text-gray-900">
-                <span className="text-emerald-600">Health Metrics</span>
-              </h3>
+          <CardContent className="pt-8 pb-8 px-6 bg-white">
+            {error && (
+              <Alert className="mb-6 border-red-200 bg-red-50">
+                <AlertDescription className="text-sm text-red-700">{error}</AlertDescription>
+              </Alert>
+            )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                {/* Glucose */}
-                <div className="space-y-2">
-                  <Label htmlFor="glucose">Glucose Level (mg/dL) *</Label>
-                  <Input
-                    id="glucose"
-                    type="number"
-                    placeholder="e.g., 120"
-                    value={formData.glucose}
-                    onChange={(e) => handleChange('glucose', e.target.value)}
-                    disabled={unknownFields.glucose}
-                  />
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="glucose-unknown"
-                      checked={unknownFields.glucose}
-                      onChange={() => handleUnknownToggle('glucose')}
-                      className="rounded"
-                    />
-                    <label htmlFor="glucose-unknown" className="text-xs text-gray-600 cursor-pointer">
-                      Don't know (use average: 100 mg/dL)
-                    </label>
+            {currentPage === 1 && (
+              <div className="space-y-8 animate-in fade-in slide-in-from-right duration-500">
+                <div className="text-center mb-8">
+                  <div className={`inline-flex items-center justify-center w-16 h-16 ${styles.iconBg} rounded-full mb-4`}>
+                    <User className={`w-8 h-8 ${styles.iconColor}`} />
                   </div>
-                  <p className="text-xs text-gray-500">Fasting blood glucose</p>
+                  <h2 className="text-2xl font-bold text-gray-800">Let's Get Started!</h2>
+                  <p className="text-gray-600 mt-2">First, tell us a bit about yourself</p>
                 </div>
 
-                {/* Insulin */}
-                <div className="space-y-2">
-                  <Label htmlFor="insulin">Insulin Level (μU/mL) *</Label>
-                  <Input
-                    id="insulin"
-                    type="number"
-                    placeholder="e.g., 85"
-                    value={formData.insulin}
-                    onChange={(e) => handleChange('insulin', e.target.value)}
-                    disabled={unknownFields.insulin}
-                  />
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="insulin-unknown"
-                      checked={unknownFields.insulin}
-                      onChange={() => handleUnknownToggle('insulin')}
-                      className="rounded"
-                    />
-                    <label htmlFor="insulin-unknown" className="text-xs text-gray-600 cursor-pointer">
-                      Don't know (use average: 80 μU/mL)
-                    </label>
-                  </div>
-                </div>
-
-                {/* BMI with Calculator */}
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    BMI *
-                    <button
-                      type="button"
-                      onClick={() => setShowEstimator(showEstimator === 'bmi' ? null : 'bmi')}
-                      className="text-emerald-600"
-                    >
-                      <Calculator className="h-4 w-4" />
-                    </button>
-                  </Label>
-                  <Input
-                    type="number"
-                    step="0.1"
-                    placeholder="e.g., 25.5"
-                    value={formData.bmi}
-                    onChange={(e) => handleChange('bmi', e.target.value)}
-                  />
-                  
-                  {showEstimator === 'bmi' && (
-                    <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200 space-y-2">
-                      <p className="text-xs font-medium">Calculate BMI:</p>
-                      <Input
-                        type="number"
-                        placeholder="Weight (kg)"
-                        value={weight}
-                        onChange={(e) => setWeight(e.target.value)}
-                      />
-                      <Input
-                        type="number"
-                        placeholder="Height (cm)"
-                        value={height}
-                        onChange={(e) => setHeight(e.target.value)}
-                      />
-                      <Button
-                        type="button"
-                        onClick={calculateBMI}
-                        size="sm"
-                        className="w-full"
-                      >
-                        Calculate
-                      </Button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Pedigree with Estimator */}
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    Diabetes Pedigree *
-                    <button
-                      type="button"
-                      onClick={() => setShowEstimator(showEstimator === 'pedigree' ? null : 'pedigree')}
-                      className="text-emerald-600"
-                    >
-                      <Calculator className="h-4 w-4" />
-                    </button>
-                  </Label>
-                  <Input
-                    type="number"
-                    step="0.001"
-                    placeholder="e.g., 0.5"
-                    value={formData.diabetesPedigree}
-                    onChange={(e) => handleChange('diabetesPedigree', e.target.value)}
-                    disabled={unknownFields.diabetesPedigree}
-                  />
-                  
-                  {showEstimator === 'pedigree' && (
-                    <div className="p-3 bg-orange-50 rounded-lg border space-y-2">
-                      <p className="text-xs font-medium">Family History:</p>
-                      <label className="flex items-center gap-2 text-xs">
-                        <input
-                          type="checkbox"
-                          checked={familyHistory.parents}
-                          onChange={(e) => handleFamilyHistoryChange('parents', e.target.checked)}
-                        />
-                        Parents have diabetes
-                      </label>
-                      <label className="flex items-center gap-2 text-xs">
-                        <input
-                          type="checkbox"
-                          checked={familyHistory.siblings}
-                          onChange={(e) => handleFamilyHistoryChange('siblings', e.target.checked)}
-                        />
-                        Siblings have diabetes
-                      </label>
-                      <label className="flex items-center gap-2 text-xs">
-                        <input
-                          type="checkbox"
-                          checked={familyHistory.grandparents}
-                          onChange={(e) => handleFamilyHistoryChange('grandparents', e.target.checked)}
-                        />
-                        Grandparents have diabetes
-                      </label>
-                      <label className="flex items-center gap-2 text-xs">
-                        <input
-                          type="checkbox"
-                          checked={familyHistory.none}
-                          onChange={(e) => handleFamilyHistoryChange('none', e.target.checked)}
-                        />
-                        None of the above
-                      </label>
-                      <Button
-                        type="button"
-                        onClick={applyPedigreeScore}
-                        size="sm"
-                        className="w-full"
-                      >
-                        Calculate
-                      </Button>
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="pedigree-unknown"
-                      checked={unknownFields.diabetesPedigree}
-                      onChange={() => handleUnknownToggle('diabetesPedigree')}
-                    />
-                    <label htmlFor="pedigree-unknown" className="text-xs text-gray-600 cursor-pointer">
-                      Don't know (use estimate)
-                    </label>
-                  </div>
-                </div>
-
-                {/* Skin Thickness */}
-                <div className="space-y-2">
-                  <Label>Skin Thickness (mm) *</Label>
-                  <Input
-                    type="number"
-                    placeholder="e.g., 20"
-                    value={formData.skinThickness}
-                    onChange={(e) => handleChange('skinThickness', e.target.value)}
-                    disabled={unknownFields.skinThickness}
-                  />
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="skin-unknown"
-                      checked={unknownFields.skinThickness}
-                      onChange={() => handleUnknownToggle('skinThickness')}
-                    />
-                    <label htmlFor="skin-unknown" className="text-xs text-gray-600 cursor-pointer">
-                      Don't know (use average: 20 mm)
-                    </label>
-                  </div>
-                </div>
-
-                {/* Pregnancies */}
-                {gender === 'female' && (
-                  <div className="space-y-2">
-                    <Label>Number of Pregnancies *</Label>
+                <div className="space-y-6">
+                  <div className="space-y-3">
+                    <Label htmlFor="name" className="text-lg font-semibold text-gray-700">What's your name? *</Label>
                     <Input
-                      type="number"
-                      placeholder="e.g., 2"
-                      value={formData.pregnancies || ''}
-                      onChange={(e) => handleChange('pregnancies', e.target.value)}
-                      min="0"
+                      id="name"
+                      type="text"
+                      placeholder="Type your full name here..."
+                      value={formData.name}
+                      onChange={(e) => handleChange('name', e.target.value)}
+                      className={`text-lg py-6 border-2 ${styles.focusBorder} rounded-lg`}
                     />
                   </div>
-                )}
-              </div>
-            </div>
 
-            <Button
-              type="button"
-              size="lg"
-              className="w-full"
-              disabled={!isFormValid() || isLoading}
-              onClick={handleSubmit}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Analyzing...
-                </>
-              ) : (
-                'Analyze Risk'
-              )}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+                  <div className="space-y-3">
+                    <Label htmlFor="age" className="text-lg font-semibold text-gray-700">How old are you? *</Label>
+                    <div className="relative">
+                      <Input
+                        id="age"
+                        type="number"
+                        min="1"
+                        max="100"
+                        placeholder="Enter your age..."
+                        value={formData.age}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === '' || (parseInt(value) >= 1 && parseInt(value) <= 100)) {
+                            handleChange('age', value);
+                          }
+                        }}
+                        className={`text-lg py-6 border-2 ${styles.focusBorder} rounded-lg pr-20`}
+                      />
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm">years old</span>
+                    </div>
+                    <div className="flex gap-2 flex-wrap">
+                      {[18, 25, 35, 45, 55, 65].map((age) => (
+                        <button
+                          key={age}
+                          type="button"
+                          onClick={() => handleChange('age', age.toString())}
+                          className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                            formData.age === age.toString()
+                              ? 'bg-cyan-600 text-white shadow-md scale-105'
+                              : 'bg-cyan-100 text-cyan-700 hover:bg-cyan-200'
+                          }`}
+                        >
+                          {age}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <Button type="button" size="lg" className={`w-full ${styles.buttonBg} text-white py-6 text-lg font-semibold mt-8`} disabled={!isPage1Valid()} onClick={nextPage}>
+                  Next Step <ChevronRight className="ml-2 h-5 w-5" />
+                </Button>
+              </div>
+            )}
+
+            {currentPage === 2 && (
+              <div className="space-y-8 animate-in fade-in slide-in-from-right duration-500">
+                <div className="text-center mb-8">
+                  <div className={`inline-flex items-center justify-center w-16 h-16 ${styles.iconBg} rounded-full mb-4`}>
+                    <User className={`w-8 h-8 ${styles.iconColor}`} />
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-800">Select Your Gender</h2>
+                  <p className="text-gray-600 mt-2">This helps us provide more accurate predictions</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <button
+                    type="button"
+                    onClick={() => handleChange('gender', 'Female')}
+                    className={`p-8 rounded-2xl border-2 transition-all duration-200 ${
+                      formData.gender === 'Female'
+                        ? 'border-indigo-500 bg-indigo-50 shadow-xl scale-105'
+                        : 'border-gray-300 bg-white hover:border-indigo-300 hover:shadow-lg hover:scale-102'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-3">
+                      <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                        formData.gender === 'Female' ? 'bg-indigo-100' : 'bg-gray-100'
+                      }`}>
+                        <User className={`w-8 h-8 ${formData.gender === 'Female' ? 'text-indigo-600' : 'text-gray-400'}`} />
+                      </div>
+                      <span className={`font-bold text-xl ${formData.gender === 'Female' ? 'text-indigo-700' : 'text-gray-700'}`}>
+                        Female
+                      </span>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleChange('gender', 'Male')}
+                    className={`p-8 rounded-2xl border-2 transition-all duration-200 ${
+                      formData.gender === 'Male'
+                        ? 'border-indigo-500 bg-indigo-50 shadow-xl scale-105'
+                        : 'border-gray-300 bg-white hover:border-indigo-300 hover:shadow-lg hover:scale-102'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-3">
+                      <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                        formData.gender === 'Male' ? 'bg-indigo-100' : 'bg-gray-100'
+                      }`}>
+                        <User className={`w-8 h-8 ${formData.gender === 'Male' ? 'text-indigo-600' : 'text-gray-400'}`} />
+                      </div>
+                      <span className={`font-bold text-xl ${formData.gender === 'Male' ? 'text-indigo-700' : 'text-gray-700'}`}>
+                        Male
+                      </span>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleChange('gender', 'Other')}
+                    className={`p-8 rounded-2xl border-2 transition-all duration-200 ${
+                      formData.gender === 'Other'
+                        ? 'border-indigo-500 bg-indigo-50 shadow-xl scale-105'
+                        : 'border-gray-300 bg-white hover:border-indigo-300 hover:shadow-lg hover:scale-102'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-3">
+                      <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                        formData.gender === 'Other' ? 'bg-indigo-100' : 'bg-gray-100'
+                      }`}>
+                        <User className={`w-8 h-8 ${formData.gender === 'Other' ? 'text-indigo-600' : 'text-gray-400'}`} />
+                      </div>
+                      <span className={`font-bold text-xl ${formData.gender === 'Other' ? 'text-indigo-700' : 'text-gray-700'}`}>
+                        Other
+                      </span>
+                    </div>
+                  </button>
+                </div>
+
+                <div className="flex gap-4 mt-8">
+                  <Button type="button" size="lg" variant="outline" className="w-full py-6 text-lg font-semibold border-2 hover:bg-gray-50" onClick={prevPage}>
+                    <ChevronLeft className="mr-2 h-5 w-5" /> Go Back
+                  </Button>
+                  <Button type="button" size="lg" className={`w-full ${styles.buttonBg} text-white py-6 text-lg font-semibold`} disabled={!isPage2Valid()} onClick={nextPage}>
+                    Continue <ChevronRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {currentPage === 3 && (
+              <div className="space-y-8 animate-in fade-in slide-in-from-right duration-500">
+                <div className="text-center mb-8">
+                  <div className={`inline-flex items-center justify-center w-16 h-16 ${styles.iconBg} rounded-full mb-4`}>
+                    <Heart className={`w-8 h-8 ${styles.iconColor}`} />
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-800">Your Health History</h2>
+                  <p className="text-gray-600 mt-2">These help us understand your current condition</p>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="space-y-3">
+                    <Label className="text-lg font-semibold text-gray-700">Have you been diagnosed with high blood pressure? *</Label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <button type="button" onClick={() => handleChange('hypertension', 'yes')}
+                        className={`p-6 rounded-xl border-2 transition-all duration-200 ${formData.hypertension === 'yes' ? 'border-rose-500 bg-rose-50 shadow-lg scale-105' : 'border-gray-300 bg-white hover:border-rose-300 hover:shadow-md'}`}>
+                        <div className="flex flex-col items-center gap-2">
+                          <Activity className={`w-8 h-8 ${formData.hypertension === 'yes' ? 'text-rose-600' : 'text-gray-400'}`} />
+                          <span className={`font-semibold text-lg ${formData.hypertension === 'yes' ? 'text-rose-700' : 'text-gray-700'}`}>Yes, I do</span>
+                        </div>
+                      </button>
+                      <button type="button" onClick={() => handleChange('hypertension', 'no')}
+                        className={`p-6 rounded-xl border-2 transition-all duration-200 ${formData.hypertension === 'no' ? 'border-emerald-500 bg-emerald-50 shadow-lg scale-105' : 'border-gray-300 bg-white hover:border-emerald-300 hover:shadow-md'}`}>
+                        <div className="flex flex-col items-center gap-2">
+                          <Activity className={`w-8 h-8 ${formData.hypertension === 'no' ? 'text-emerald-600' : 'text-gray-400'}`} />
+                          <span className={`font-semibold text-lg ${formData.hypertension === 'no' ? 'text-emerald-700' : 'text-gray-700'}`}>No, I don't</span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label className="text-lg font-semibold text-gray-700">Do you have any heart disease? *</Label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <button type="button" onClick={() => handleChange('heartDisease', 'yes')}
+                        className={`p-6 rounded-xl border-2 transition-all duration-200 ${formData.heartDisease === 'yes' ? 'border-rose-500 bg-rose-50 shadow-lg scale-105' : 'border-gray-300 bg-white hover:border-rose-300 hover:shadow-md'}`}>
+                        <div className="flex flex-col items-center gap-2">
+                          <Heart className={`w-8 h-8 ${formData.heartDisease === 'yes' ? 'text-rose-600' : 'text-gray-400'}`} />
+                          <span className={`font-semibold text-lg ${formData.heartDisease === 'yes' ? 'text-rose-700' : 'text-gray-700'}`}>Yes, I do</span>
+                        </div>
+                      </button>
+                      <button type="button" onClick={() => handleChange('heartDisease', 'no')}
+                        className={`p-6 rounded-xl border-2 transition-all duration-200 ${formData.heartDisease === 'no' ? 'border-emerald-500 bg-emerald-50 shadow-lg scale-105' : 'border-gray-300 bg-white hover:border-emerald-300 hover:shadow-md'}`}>
+                        <div className="flex flex-col items-center gap-2">
+                          <Heart className={`w-8 h-8 ${formData.heartDisease === 'no' ? 'text-emerald-600' : 'text-gray-400'}`} />
+                          <span className={`font-semibold text-lg ${formData.heartDisease === 'no' ? 'text-emerald-700' : 'text-gray-700'}`}>No, I don't</span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 mt-8">
+                  <Button type="button" size="lg" variant="outline" className="w-full py-6 text-lg font-semibold border-2 hover:bg-gray-50" onClick={prevPage}>
+                    <ChevronLeft className="mr-2 h-5 w-5" /> Go Back
+                  </Button>
+                  <Button type="button" size="lg" className={`w-full ${styles.buttonBg} text-white py-6 text-lg font-semibold`} disabled={!isPage3Valid()} onClick={nextPage}>
+                    Almost Done <ChevronRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {currentPage === 4 && (
+              <div className="space-y-8 animate-in fade-in slide-in-from-right duration-500">
+                <div className="text-center mb-8">
+                  <div className={`inline-flex items-center justify-center w-16 h-16 ${styles.iconBg} rounded-full mb-4`}>
+                    <Activity className={`w-8 h-8 ${styles.iconColor}`} />
+                  </div>
+                  <h2 className="text-2xl font-bold text-gray-800">Final Details</h2>
+                  <p className="text-gray-600 mt-2">Just a few measurements to complete your assessment</p>
+                </div>
+
+                <Alert className="border-amber-200 bg-amber-50">
+                  <Info className="h-4 w-4 text-amber-600" />
+                  <AlertDescription className="text-sm text-gray-700">
+                    Don't worry if you don't have exact numbers - use our calculator to estimate BMI!
+                  </AlertDescription>
+                </Alert>
+
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="smokingHistory" className="text-base font-semibold text-gray-700">What's your smoking history? *</Label>
+                    <select id="smokingHistory" value={formData.smokingHistory} onChange={(e) => handleChange('smokingHistory', e.target.value)}
+                      className={`w-full px-4 py-3 border-2 ${styles.focusBorder} rounded-lg focus:outline-none focus:ring-2 ${styles.focusRing}`}>
+                      {smokingOptions.map((option) => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="bloodGlucose" className="text-base font-semibold text-gray-700">Blood Glucose Level (mg/dL) *</Label>
+                      <Input id="bloodGlucose" type="number" placeholder="e.g., 120" value={formData.bloodGlucose}
+                        onChange={(e) => handleBloodGlucoseChange(e.target.value)} className="border-2" />
+                      <p className="text-xs text-gray-500">Fasting blood sugar reading</p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="hbA1c" className="text-base font-semibold text-gray-700 flex items-center gap-2">
+                        HbA1c Level (%) * <span className="text-xs text-violet-600 font-normal">(Auto-calculated)</span>
+                      </Label>
+                      <Input id="hbA1c" type="number" step="0.1" placeholder="Calculated automatically" value={formData.hbA1c}
+                        onChange={(e) => handleChange('hbA1c', e.target.value)} className="bg-violet-50 border-2 border-violet-200" />
+                      <p className="text-xs text-violet-600">
+                        {formData.bloodGlucose ? '✓ Calculated from your glucose level' : 'Enter blood glucose first'}
+                      </p>
+                    </div>
+
+                    <div className="space-y-2 md:col-span-2">
+                      <Label className="text-base font-semibold text-gray-700 flex items-center gap-2">
+                        Body Mass Index (BMI) *
+                        <button type="button" onClick={() => setShowEstimator(showEstimator === 'bmi' ? null : 'bmi')} className="text-blue-600 hover:text-blue-700">
+                          <Calculator className="h-4 w-4" />
+                        </button>
+                      </Label>
+                      <Input type="number" step="0.1" placeholder="e.g., 25.5" value={formData.bmi}
+                        onChange={(e) => handleChange('bmi', e.target.value)} className="border-2" />
+
+                      {showEstimator === 'bmi' && (
+                        <div className="p-4 bg-blue-50 rounded-lg border-2 border-blue-200 space-y-3">
+                          <p className="text-sm font-semibold text-blue-700">Calculate your BMI:</p>
+                          <Input type="number" placeholder="Weight (kg)" value={weight} onChange={(e) => setWeight(e.target.value)} />
+                          <Input type="number" placeholder="Height (cm)" value={height} onChange={(e) => setHeight(e.target.value)} />
+                          <Button type="button" onClick={calculateBMI} size="sm" className="w-full bg-blue-600 hover:bg-blue-700">Calculate</Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 mt-8">
+                  <Button type="button" size="lg" variant="outline" className="w-full py-6 text-lg font-semibold border-2 hover:bg-gray-50" onClick={prevPage}>
+                    <ChevronLeft className="mr-2 h-5 w-5" /> Back
+                  </Button>
+                  <Button type="button" size="lg" className={`w-full ${styles.buttonBg} text-white py-6 text-lg font-semibold`}
+                    disabled={!isPage4Valid() || isLoading} onClick={handleSubmit}>
+                    {isLoading ? (<><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Analyzing...</>) : 'Analyze Risk'}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <ResultDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        riskPercentage={riskPercentage}
+        riskCategory={riskCategory}
+        patientName={formData.name}
+      />
+    </>
   );
 };
 
