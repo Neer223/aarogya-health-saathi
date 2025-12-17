@@ -32,23 +32,7 @@ app.post("/predict", (req, res) => {
     console.log(`Using Python executable: ${pythonCmd}`);
 
     const python = spawn(pythonCmd, ["model/predict.py"]); // Changed to model/predict.py assuming app.js is in backend/ and predict.py is in backend/model/ ?? 
-    // WAIT. existting code said: spawn("python", ["predict.py"]);
-    // File structure:
-    // backend/app.js
-    // backend/model/predict.py
-    // The original code assumed predict.py was in the CWD (backend/). But ls showed it in backend/model/.
-    // Let me double check file location. 
-    // Step 4 ls backend:
-    // backend/model (dir)
-    // backend/app.js
-    // so predict.py is in backend/model/predict.py. 
-    // If running from backend/, we need "model/predict.py".
-
-    // HOWEVER, the original code had: const python = spawn("python", ["predict.py"]);
-    // This implies the previous developer might have been running it from backend/model/ OR it was just broken.
-    // Given the user said "500 error", it likely was broken because it couldn't find the file OR python.
-    // I will set the cwd for spawn to ensure it finds the file and dependencies (like *.pkl) correctly.
-
+    
     const modelDir = path.join(process.cwd(), "model");
 
     const pythonProcess = spawn(pythonCmd, ["predict.py"], {

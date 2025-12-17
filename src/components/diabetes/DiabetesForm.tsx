@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Calculator, Info, Loader2, ChevronRight, ChevronLeft, User, Heart, Activity } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useNavigate } from 'react-router-dom';
 import ResultDialog from './ResultDialog';
 
 const DiabetesForm = () => {
@@ -24,12 +25,21 @@ const DiabetesForm = () => {
   const [showEstimator, setShowEstimator] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({});
   const [weight, setWeight] = useState('');
   const [height, setHeight] = useState('');
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [riskPercentage, setRiskPercentage] = useState(0);
   const [riskCategory, setRiskCategory] = useState('');
+  const navigate = useNavigate();
+
+  const handleViewTips = () => {
+    navigate('/health-tips');
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
+  };
 
   const smokingOptions = [
     { value: '', label: 'Select smoking history' },
@@ -43,6 +53,14 @@ const DiabetesForm = () => {
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear validation error for this field when user starts typing
+    if (validationErrors[field]) {
+      setValidationErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
   };
 
   const calculateHbA1c = (glucose) => {
@@ -76,6 +94,37 @@ const DiabetesForm = () => {
   const handleSubmit = async () => {
     setIsLoading(true);
     setError(null);
+    setValidationErrors({});
+
+    // Validation checks
+    const errors = {};
+
+    const age = parseInt(formData.age);
+    if (age < 1 || age > 120) {
+      errors.age = 'Age must be between 1 and 120 years';
+    }
+
+    const bmi = parseFloat(formData.bmi);
+    if (bmi < 10 || bmi > 100) {
+      errors.bmi = 'BMI must be between 10 and 100';
+    }
+
+    const hbA1c = parseFloat(formData.hbA1c);
+    if (hbA1c < 3 || hbA1c > 20) {
+      errors.hbA1c = 'HbA1c level must be between 3% and 20%';
+    }
+
+    const bloodGlucose = parseFloat(formData.bloodGlucose);
+    if (bloodGlucose < 40 || bloodGlucose > 600) {
+      errors.bloodGlucose = 'Blood glucose must be between 40 and 600 mg/dL';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      setIsLoading(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
 
     try {
       const apiPayload = {
@@ -202,23 +251,36 @@ const DiabetesForm = () => {
               </Alert>
             )}
 
+            {Object.keys(validationErrors).length > 0 && (
+              <Alert className="mb-6 border-red-200 bg-red-50">
+                <AlertDescription className="text-sm text-red-700">
+                  <div className="font-semibold mb-2">Please correct the following errors:</div>
+                  <ul className="list-disc list-inside space-y-1">
+                    {Object.entries(validationErrors).map(([field, message]) => (
+                      <li key={field}>{message}</li>
+                    ))}
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            )}
+
             {currentPage === 1 && (
               <div className="space-y-8 animate-in fade-in slide-in-from-right duration-500">
                 <div className="text-center mb-8">
                   <div className={`inline-flex items-center justify-center w-16 h-16 ${styles.iconBg} rounded-full mb-4`}>
                     <User className={`w-8 h-8 ${styles.iconColor}`} />
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-800">Let's Get Started!</h2>
-                  <p className="text-gray-600 mt-2">First, tell us a bit about yourself</p>
+                  <h2 className="text-2xl font-bold text-gray-800">Personal Information</h2>
+                  <p className="text-gray-600 mt-2">Please provide your basic details</p>
                 </div>
 
                 <div className="space-y-6">
                   <div className="space-y-3">
-                    <Label htmlFor="name" className="text-lg font-semibold text-gray-700">What's your name? *</Label>
+                    <Label htmlFor="name" className="text-lg font-semibold text-gray-700">Full Name *</Label>
                     <Input
                       id="name"
                       type="text"
-                      placeholder="Type your full name here..."
+                      placeholder="Enter your full name"
                       value={formData.name}
                       onChange={(e) => handleChange('name', e.target.value)}
                       className={`text-lg py-6 border-2 ${styles.focusBorder} rounded-lg`}
@@ -226,41 +288,20 @@ const DiabetesForm = () => {
                   </div>
 
                   <div className="space-y-3">
-                    <Label htmlFor="age" className="text-lg font-semibold text-gray-700">How old are you? *</Label>
-                    <div className="relative">
-                      <Input
-                        id="age"
-                        type="number"
-                        min="1"
-                        max="100"
-                        placeholder="Enter your age..."
-                        value={formData.age}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          if (value === '' || (parseInt(value) >= 1 && parseInt(value) <= 100)) {
-                            handleChange('age', value);
-                          }
-                        }}
-                        className={`text-lg py-6 border-2 ${styles.focusBorder} rounded-lg pr-20`}
-                      />
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm">years old</span>
-                    </div>
-                    <div className="flex gap-2 flex-wrap">
-                      {[18, 25, 35, 45, 55, 65].map((age) => (
-                        <button
-                          key={age}
-                          type="button"
-                          onClick={() => handleChange('age', age.toString())}
-                          className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                            formData.age === age.toString()
-                              ? 'bg-cyan-600 text-white shadow-md scale-105'
-                              : 'bg-cyan-100 text-cyan-700 hover:bg-cyan-200'
-                          }`}
-                        >
-                          {age}
-                        </button>
+                    <Label htmlFor="age" className="text-lg font-semibold text-gray-700">Age *</Label>
+                    <select
+                      id="age"
+                      value={formData.age}
+                      onChange={(e) => handleChange('age', e.target.value)}
+                      className={`w-full px-4 py-4 text-lg border-2 ${styles.focusBorder} rounded-lg focus:outline-none focus:ring-2 ${styles.focusRing} bg-white`}
+                    >
+                      <option value="">Select your age</option>
+                      {Array.from({ length: 120 }, (_, i) => i + 1).map((age) => (
+                        <option key={age} value={age}>
+                          {age} {age === 1 ? 'year' : 'years'}
+                        </option>
                       ))}
-                    </div>
+                    </select>
                   </div>
                 </div>
 
@@ -276,7 +317,7 @@ const DiabetesForm = () => {
                   <div className={`inline-flex items-center justify-center w-16 h-16 ${styles.iconBg} rounded-full mb-4`}>
                     <User className={`w-8 h-8 ${styles.iconColor}`} />
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-800">Select Your Gender</h2>
+                  <h2 className="text-2xl font-bold text-gray-800">Gender Selection</h2>
                   <p className="text-gray-600 mt-2">This helps us provide more accurate predictions</p>
                 </div>
 
@@ -284,17 +325,18 @@ const DiabetesForm = () => {
                   <button
                     type="button"
                     onClick={() => handleChange('gender', 'Female')}
-                    className={`p-8 rounded-2xl border-2 transition-all duration-200 ${
-                      formData.gender === 'Female'
+                    className={`p-8 rounded-2xl border-2 transition-all duration-200 ${formData.gender === 'Female'
                         ? 'border-indigo-500 bg-indigo-50 shadow-xl scale-105'
                         : 'border-gray-300 bg-white hover:border-indigo-300 hover:shadow-lg hover:scale-102'
-                    }`}
+                      }`}
                   >
                     <div className="flex flex-col items-center gap-3">
-                      <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                        formData.gender === 'Female' ? 'bg-indigo-100' : 'bg-gray-100'
-                      }`}>
-                        <User className={`w-8 h-8 ${formData.gender === 'Female' ? 'text-indigo-600' : 'text-gray-400'}`} />
+                      <div className={`w-20 h-20 rounded-full flex items-center justify-center ${formData.gender === 'Female' ? 'bg-indigo-100' : 'bg-gray-100'
+                        }`}>
+                        <svg className={`w-12 h-12 ${formData.gender === 'Female' ? 'text-indigo-600' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <circle cx="12" cy="8" r="4" strokeWidth="2" />
+                          <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" strokeWidth="2" />
+                        </svg>
                       </div>
                       <span className={`font-bold text-xl ${formData.gender === 'Female' ? 'text-indigo-700' : 'text-gray-700'}`}>
                         Female
@@ -304,17 +346,18 @@ const DiabetesForm = () => {
                   <button
                     type="button"
                     onClick={() => handleChange('gender', 'Male')}
-                    className={`p-8 rounded-2xl border-2 transition-all duration-200 ${
-                      formData.gender === 'Male'
+                    className={`p-8 rounded-2xl border-2 transition-all duration-200 ${formData.gender === 'Male'
                         ? 'border-indigo-500 bg-indigo-50 shadow-xl scale-105'
                         : 'border-gray-300 bg-white hover:border-indigo-300 hover:shadow-lg hover:scale-102'
-                    }`}
+                      }`}
                   >
                     <div className="flex flex-col items-center gap-3">
-                      <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                        formData.gender === 'Male' ? 'bg-indigo-100' : 'bg-gray-100'
-                      }`}>
-                        <User className={`w-8 h-8 ${formData.gender === 'Male' ? 'text-indigo-600' : 'text-gray-400'}`} />
+                      <div className={`w-20 h-20 rounded-full flex items-center justify-center ${formData.gender === 'Male' ? 'bg-indigo-100' : 'bg-gray-100'
+                        }`}>
+                        <svg className={`w-12 h-12 ${formData.gender === 'Male' ? 'text-indigo-600' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <circle cx="12" cy="8" r="4" strokeWidth="2" />
+                          <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" strokeWidth="2" />
+                        </svg>
                       </div>
                       <span className={`font-bold text-xl ${formData.gender === 'Male' ? 'text-indigo-700' : 'text-gray-700'}`}>
                         Male
@@ -324,17 +367,18 @@ const DiabetesForm = () => {
                   <button
                     type="button"
                     onClick={() => handleChange('gender', 'Other')}
-                    className={`p-8 rounded-2xl border-2 transition-all duration-200 ${
-                      formData.gender === 'Other'
+                    className={`p-8 rounded-2xl border-2 transition-all duration-200 ${formData.gender === 'Other'
                         ? 'border-indigo-500 bg-indigo-50 shadow-xl scale-105'
                         : 'border-gray-300 bg-white hover:border-indigo-300 hover:shadow-lg hover:scale-102'
-                    }`}
+                      }`}
                   >
                     <div className="flex flex-col items-center gap-3">
-                      <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                        formData.gender === 'Other' ? 'bg-indigo-100' : 'bg-gray-100'
-                      }`}>
-                        <User className={`w-8 h-8 ${formData.gender === 'Other' ? 'text-indigo-600' : 'text-gray-400'}`} />
+                      <div className={`w-20 h-20 rounded-full flex items-center justify-center ${formData.gender === 'Other' ? 'bg-indigo-100' : 'bg-gray-100'
+                        }`}>
+                        <svg className={`w-12 h-12 ${formData.gender === 'Other' ? 'text-indigo-600' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <circle cx="12" cy="8" r="4" strokeWidth="2" />
+                          <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" strokeWidth="2" />
+                        </svg>
                       </div>
                       <span className={`font-bold text-xl ${formData.gender === 'Other' ? 'text-indigo-700' : 'text-gray-700'}`}>
                         Other
@@ -360,8 +404,8 @@ const DiabetesForm = () => {
                   <div className={`inline-flex items-center justify-center w-16 h-16 ${styles.iconBg} rounded-full mb-4`}>
                     <Heart className={`w-8 h-8 ${styles.iconColor}`} />
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-800">Your Health History</h2>
-                  <p className="text-gray-600 mt-2">These help us understand your current condition</p>
+                  <h2 className="text-2xl font-bold text-gray-800">Medical History</h2>
+                  <p className="text-gray-600 mt-2">Information about existing health conditions</p>
                 </div>
 
                 <div className="space-y-6">
@@ -369,17 +413,25 @@ const DiabetesForm = () => {
                     <Label className="text-lg font-semibold text-gray-700">Have you been diagnosed with high blood pressure? *</Label>
                     <div className="grid grid-cols-2 gap-4">
                       <button type="button" onClick={() => handleChange('hypertension', 'yes')}
-                        className={`p-6 rounded-xl border-2 transition-all duration-200 ${formData.hypertension === 'yes' ? 'border-rose-500 bg-rose-50 shadow-lg scale-105' : 'border-gray-300 bg-white hover:border-rose-300 hover:shadow-md'}`}>
-                        <div className="flex flex-col items-center gap-2">
-                          <Activity className={`w-8 h-8 ${formData.hypertension === 'yes' ? 'text-rose-600' : 'text-gray-400'}`} />
-                          <span className={`font-semibold text-lg ${formData.hypertension === 'yes' ? 'text-rose-700' : 'text-gray-700'}`}>Yes, I do</span>
+                        className={`p-6 rounded-xl border-2 transition-all duration-200 ${formData.hypertension === 'yes' ? 'border-red-500 bg-red-50 shadow-lg scale-105' : 'border-gray-300 bg-white hover:border-red-300 hover:shadow-md'}`}>
+                        <div className="flex flex-col items-center gap-3">
+                          <div className={`w-14 h-14 rounded-full flex items-center justify-center ${formData.hypertension === 'yes' ? 'bg-red-100' : 'bg-gray-100'}`}>
+                            <svg className={`w-8 h-8 ${formData.hypertension === 'yes' ? 'text-red-600' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                            </svg>
+                          </div>
+                          <span className={`font-semibold text-lg ${formData.hypertension === 'yes' ? 'text-red-700' : 'text-gray-700'}`}>Yes</span>
                         </div>
                       </button>
                       <button type="button" onClick={() => handleChange('hypertension', 'no')}
                         className={`p-6 rounded-xl border-2 transition-all duration-200 ${formData.hypertension === 'no' ? 'border-emerald-500 bg-emerald-50 shadow-lg scale-105' : 'border-gray-300 bg-white hover:border-emerald-300 hover:shadow-md'}`}>
-                        <div className="flex flex-col items-center gap-2">
-                          <Activity className={`w-8 h-8 ${formData.hypertension === 'no' ? 'text-emerald-600' : 'text-gray-400'}`} />
-                          <span className={`font-semibold text-lg ${formData.hypertension === 'no' ? 'text-emerald-700' : 'text-gray-700'}`}>No, I don't</span>
+                        <div className="flex flex-col items-center gap-3">
+                          <div className={`w-14 h-14 rounded-full flex items-center justify-center ${formData.hypertension === 'no' ? 'bg-emerald-100' : 'bg-gray-100'}`}>
+                            <svg className={`w-8 h-8 ${formData.hypertension === 'no' ? 'text-emerald-600' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                          <span className={`font-semibold text-lg ${formData.hypertension === 'no' ? 'text-emerald-700' : 'text-gray-700'}`}>No</span>
                         </div>
                       </button>
                     </div>
@@ -389,17 +441,25 @@ const DiabetesForm = () => {
                     <Label className="text-lg font-semibold text-gray-700">Do you have any heart disease? *</Label>
                     <div className="grid grid-cols-2 gap-4">
                       <button type="button" onClick={() => handleChange('heartDisease', 'yes')}
-                        className={`p-6 rounded-xl border-2 transition-all duration-200 ${formData.heartDisease === 'yes' ? 'border-rose-500 bg-rose-50 shadow-lg scale-105' : 'border-gray-300 bg-white hover:border-rose-300 hover:shadow-md'}`}>
-                        <div className="flex flex-col items-center gap-2">
-                          <Heart className={`w-8 h-8 ${formData.heartDisease === 'yes' ? 'text-rose-600' : 'text-gray-400'}`} />
-                          <span className={`font-semibold text-lg ${formData.heartDisease === 'yes' ? 'text-rose-700' : 'text-gray-700'}`}>Yes, I do</span>
+                        className={`p-6 rounded-xl border-2 transition-all duration-200 ${formData.heartDisease === 'yes' ? 'border-red-500 bg-red-50 shadow-lg scale-105' : 'border-gray-300 bg-white hover:border-red-300 hover:shadow-md'}`}>
+                        <div className="flex flex-col items-center gap-3">
+                          <div className={`w-14 h-14 rounded-full flex items-center justify-center ${formData.heartDisease === 'yes' ? 'bg-red-100' : 'bg-gray-100'}`}>
+                            <svg className={`w-8 h-8 ${formData.heartDisease === 'yes' ? 'text-red-600' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                            </svg>
+                          </div>
+                          <span className={`font-semibold text-lg ${formData.heartDisease === 'yes' ? 'text-red-700' : 'text-gray-700'}`}>Yes</span>
                         </div>
                       </button>
                       <button type="button" onClick={() => handleChange('heartDisease', 'no')}
                         className={`p-6 rounded-xl border-2 transition-all duration-200 ${formData.heartDisease === 'no' ? 'border-emerald-500 bg-emerald-50 shadow-lg scale-105' : 'border-gray-300 bg-white hover:border-emerald-300 hover:shadow-md'}`}>
-                        <div className="flex flex-col items-center gap-2">
-                          <Heart className={`w-8 h-8 ${formData.heartDisease === 'no' ? 'text-emerald-600' : 'text-gray-400'}`} />
-                          <span className={`font-semibold text-lg ${formData.heartDisease === 'no' ? 'text-emerald-700' : 'text-gray-700'}`}>No, I don't</span>
+                        <div className="flex flex-col items-center gap-3">
+                          <div className={`w-14 h-14 rounded-full flex items-center justify-center ${formData.heartDisease === 'no' ? 'bg-emerald-100' : 'bg-gray-100'}`}>
+                            <svg className={`w-8 h-8 ${formData.heartDisease === 'no' ? 'text-emerald-600' : 'text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                          <span className={`font-semibold text-lg ${formData.heartDisease === 'no' ? 'text-emerald-700' : 'text-gray-700'}`}>No</span>
                         </div>
                       </button>
                     </div>
@@ -423,20 +483,20 @@ const DiabetesForm = () => {
                   <div className={`inline-flex items-center justify-center w-16 h-16 ${styles.iconBg} rounded-full mb-4`}>
                     <Activity className={`w-8 h-8 ${styles.iconColor}`} />
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-800">Final Details</h2>
-                  <p className="text-gray-600 mt-2">Just a few measurements to complete your assessment</p>
+                  <h2 className="text-2xl font-bold text-gray-800">Clinical Measurements</h2>
+                  <p className="text-gray-600 mt-2">Final health metrics for assessment</p>
                 </div>
 
                 <Alert className="border-amber-200 bg-amber-50">
                   <Info className="h-4 w-4 text-amber-600" />
                   <AlertDescription className="text-sm text-gray-700">
-                    Don't worry if you don't have exact numbers - use our calculator to estimate BMI!
+                    Use the calculator if you need help estimating your BMI from height and weight.
                   </AlertDescription>
                 </Alert>
 
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="smokingHistory" className="text-base font-semibold text-gray-700">What's your smoking history? *</Label>
+                    <Label htmlFor="smokingHistory" className="text-base font-semibold text-gray-700">Smoking History *</Label>
                     <select id="smokingHistory" value={formData.smokingHistory} onChange={(e) => handleChange('smokingHistory', e.target.value)}
                       className={`w-full px-4 py-3 border-2 ${styles.focusBorder} rounded-lg focus:outline-none focus:ring-2 ${styles.focusRing}`}>
                       {smokingOptions.map((option) => (
@@ -448,19 +508,38 @@ const DiabetesForm = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <Label htmlFor="bloodGlucose" className="text-base font-semibold text-gray-700">Blood Glucose Level (mg/dL) *</Label>
-                      <Input id="bloodGlucose" type="number" placeholder="e.g., 120" value={formData.bloodGlucose}
-                        onChange={(e) => handleBloodGlucoseChange(e.target.value)} className="border-2" />
-                      <p className="text-xs text-gray-500">Fasting blood sugar reading</p>
+                      <Input
+                        id="bloodGlucose"
+                        type="number"
+                        placeholder="e.g., 120"
+                        value={formData.bloodGlucose}
+                        onChange={(e) => handleBloodGlucoseChange(e.target.value)}
+                        className={`border-2 ${validationErrors.bloodGlucose ? 'border-red-300 bg-red-50' : ''}`}
+                      />
+                      {validationErrors.bloodGlucose && (
+                        <p className="text-xs text-red-600">{validationErrors.bloodGlucose}</p>
+                      )}
+                      <p className="text-xs text-gray-500">Fasting blood sugar reading (40-600 mg/dL)</p>
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="hbA1c" className="text-base font-semibold text-gray-700 flex items-center gap-2">
                         HbA1c Level (%) * <span className="text-xs text-violet-600 font-normal">(Auto-calculated)</span>
                       </Label>
-                      <Input id="hbA1c" type="number" step="0.1" placeholder="Calculated automatically" value={formData.hbA1c}
-                        onChange={(e) => handleChange('hbA1c', e.target.value)} className="bg-violet-50 border-2 border-violet-200" />
+                      <Input
+                        id="hbA1c"
+                        type="number"
+                        step="0.1"
+                        placeholder="Calculated automatically"
+                        value={formData.hbA1c}
+                        onChange={(e) => handleChange('hbA1c', e.target.value)}
+                        className={`bg-violet-50 border-2 ${validationErrors.hbA1c ? 'border-red-300 bg-red-50' : 'border-violet-200'}`}
+                      />
+                      {validationErrors.hbA1c && (
+                        <p className="text-xs text-red-600">{validationErrors.hbA1c}</p>
+                      )}
                       <p className="text-xs text-violet-600">
-                        {formData.bloodGlucose ? '✓ Calculated from your glucose level' : 'Enter blood glucose first'}
+                        {formData.bloodGlucose ? '✓ Calculated from your glucose level (3-20%)' : 'Enter blood glucose first'}
                       </p>
                     </div>
 
@@ -471,8 +550,18 @@ const DiabetesForm = () => {
                           <Calculator className="h-4 w-4" />
                         </button>
                       </Label>
-                      <Input type="number" step="0.1" placeholder="e.g., 25.5" value={formData.bmi}
-                        onChange={(e) => handleChange('bmi', e.target.value)} className="border-2" />
+                      <Input
+                        type="number"
+                        step="0.1"
+                        placeholder="e.g., 25.5"
+                        value={formData.bmi}
+                        onChange={(e) => handleChange('bmi', e.target.value)}
+                        className={`border-2 ${validationErrors.bmi ? 'border-red-300 bg-red-50' : ''}`}
+                      />
+                      {validationErrors.bmi && (
+                        <p className="text-xs text-red-600">{validationErrors.bmi}</p>
+                      )}
+                      <p className="text-xs text-gray-500">Normal range: 10-100</p>
 
                       {showEstimator === 'bmi' && (
                         <div className="p-4 bg-blue-50 rounded-lg border-2 border-blue-200 space-y-3">

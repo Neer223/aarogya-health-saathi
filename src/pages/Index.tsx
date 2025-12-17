@@ -1,14 +1,23 @@
-import { Activity, Heart, Leaf, Shield, AlertCircle, Sparkles, ChevronDown, Calculator, TrendingUp, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Activity, Heart, Leaf, Shield, AlertCircle, Sparkles, ChevronDown, Calculator, TrendingUp, BookOpen, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 // Import your actual images here
 import heroSlide1 from '@/assets/hero-slide-1.jpg';
 import heroSlide2 from '@/assets/hero-slide-2.jpg';
 import heroSlide3 from '@/assets/hero-slide-3.jpg';
-import yogaPerson from '@/assets/yoga-person.gif';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
@@ -30,9 +39,7 @@ const slides = [
   },
 ];
 
-
-
-const HeroSlider = () => {
+const HeroSlider = ({ onGetStarted }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
@@ -46,8 +53,7 @@ const HeroSlider = () => {
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
 
   return (
-    <div className="relative h-[500px] xs:h-[550px] sm:h-[600px] md:h-[700px] overflow-hidden w-full">
-      {/* Slides */}
+    <div className="relative h-[80vh] sm:h-[600px] md:h-[700px] overflow-hidden w-full">
       {slides.map((slide, index) => (
         <div
           key={index}
@@ -73,6 +79,7 @@ const HeroSlider = () => {
                   {slide.description}
                 </p>
                 <Button
+                  onClick={onGetStarted}
                   className="text-sm xs:text-base sm:text-lg px-6 xs:px-8 sm:px-12 py-2.5 xs:py-3 sm:py-4 h-auto rounded-lg bg-white text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
                 >
                   Get Started
@@ -83,7 +90,6 @@ const HeroSlider = () => {
         </div>
       ))}
 
-      {/* Navigation Arrows */}
       <button
         onClick={prevSlide}
         className="absolute left-2 xs:left-3 sm:left-4 top-1/2 -translate-y-1/2 w-8 h-8 xs:w-10 xs:h-10 sm:w-12 sm:h-12 bg-white/80 hover:bg-white rounded-full flex items-center justify-center transition-all shadow-lg hover:shadow-xl z-10 backdrop-blur-sm"
@@ -99,7 +105,6 @@ const HeroSlider = () => {
         <ChevronRight className="h-4 w-4 xs:h-5 xs:w-5 sm:h-6 sm:w-6 text-emerald-600" />
       </button>
 
-      {/* Dots Indicator */}
       <div className="absolute bottom-4 xs:bottom-5 sm:bottom-6 left-1/2 -translate-x-1/2 flex gap-1.5 xs:gap-2 z-10">
         {slides.map((_, index) => (
           <button
@@ -120,6 +125,7 @@ const HeroSlider = () => {
 
 const Index = () => {
   const navigate = useNavigate();
+  const [showGetStartedDialog, setShowGetStartedDialog] = useState(false);
   
   const benefits = [
     { icon: '📊', text: 'Track health and identify risk factors' },
@@ -135,20 +141,17 @@ const Index = () => {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="w-full">
-          <HeroSlider />
+          <HeroSlider onGetStarted={() => setShowGetStartedDialog(true)} />
         </section>
 
-        {/* How to Use Section - Inspired by Multi Lingual design */}
+        {/* How to Use Section */}
         <section className="py-12 xs:py-16 sm:py-20 md:py-24 px-4 xs:px-6 sm:px-8 lg:px-12 bg-white">
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-              {/* Left Side - Phone Mockup with Steps */}
               <div className="relative">
                 <div className="relative mx-auto max-w-sm">
-                  {/* Phone Frame */}
                   <div className="relative bg-black rounded-[3rem] p-3 shadow-2xl">
                     <div className="bg-white rounded-[2.5rem] overflow-hidden">
-                      {/* Phone Screen Content */}
                       <div className="bg-gradient-to-br from-emerald-500 to-teal-600 px-6 py-8 text-white">
                         <div className="text-sm mb-2">Today, {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</div>
                         <div className="text-4xl font-bold mb-2">Risk Score</div>
@@ -156,7 +159,6 @@ const Index = () => {
                         <div className="text-sm opacity-90">Keep up the good work!</div>
                       </div>
                       
-                      {/* Menu Items */}
                       <div className="bg-white p-6 space-y-4">
                         <div 
                           onClick={() => navigate('/tracker')}
@@ -202,7 +204,6 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Right Side - Content */}
               <div>
                 <div className="mb-8">
                   <h2 className="text-4xl xs:text-5xl sm:text-6xl font-bold text-gray-900 mb-6 leading-tight">
@@ -211,7 +212,6 @@ const Index = () => {
                 </div>
 
                 <div className="space-y-8">
-                  {/* For Users */}
                   <div className="border-l-4 border-emerald-500 pl-6">
                     <h3 className="text-2xl font-bold text-gray-900 mb-3">For Everyone</h3>
                     <p className="text-lg text-gray-600 leading-relaxed">
@@ -219,7 +219,6 @@ const Index = () => {
                     </p>
                   </div>
 
-                  {/* For Health-Conscious */}
                   <div className="border-l-4 border-teal-500 pl-6">
                     <h3 className="text-2xl font-bold text-gray-900 mb-3">For Your Journey</h3>
                     <p className="text-lg text-gray-600 leading-relaxed">
@@ -232,7 +231,7 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Features Section - Blog Style Cards */}
+        {/* Features Section */}
         <section id="features" className="py-12 xs:py-16 sm:py-20 md:py-24 px-4 xs:px-6 sm:px-8 lg:px-12 bg-gray-50">
           <div className="max-w-7xl mx-auto">
             <div className="mb-12">
@@ -245,7 +244,6 @@ const Index = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-              {/* Feature Card 1 - Health Tips */}
               <div className="group cursor-pointer" onClick={() => navigate('/health-tips')}>
                 <div className="rounded-2xl overflow-hidden mb-6 h-64 shadow-lg relative transform transition-all duration-300 group-hover:scale-105">
                   <img 
@@ -272,7 +270,6 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Feature Card 2 - Diabetes Tracker */}
               <div className="group cursor-pointer" onClick={() => navigate('/tracker')}>
                 <div className="rounded-2xl overflow-hidden mb-6 h-64 shadow-lg relative transform transition-all duration-300 group-hover:scale-105">
                   <img 
@@ -299,7 +296,6 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Feature Card 3 - Track Progress */}
               <div className="group cursor-pointer" onClick={() => navigate('/track-progress')}>
                 <div className="rounded-2xl overflow-hidden mb-6 h-64 shadow-lg relative transform transition-all duration-300 group-hover:scale-105">
                   <img 
@@ -329,82 +325,153 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Information Section with Image */}
-        <section id="about" className="py-8 xs:py-10 sm:py-12 md:py-16 px-3 xs:px-4 sm:px-6 lg:px-8 bg-white mt-6 xs:mt-8 sm:mt-12">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 xs:gap-6 lg:gap-8 items-start">
-              {/* Image Container - Always on Left - Takes 2 columns on large screens */}
-              <div className="lg:col-span-2">
-                <div className="relative rounded-xl xs:rounded-2xl overflow-hidden shadow-2xl border-2 xs:border-4 border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 lg:sticky lg:top-4">
-                  <img
-                    src={yogaPerson}
-                    alt="Person practicing yoga meditation"
-                    className="w-full h-auto object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-teal-500/10 to-cyan-500/10 pointer-events-none"></div>
+        {/* Track Your Progress Section - Clean Minimalist Design */}
+        <section className="py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-white">
+          <div className="max-w-7xl mx-auto">
+            
+            {/* Header */}
+            <div className="mb-8 sm:mb-10 md:mb-12 text-center">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 md:mb-6">
+                A smarter way to track your health
+              </h2>
+              <p className="text-base sm:text-lg md:text-xl text-gray-600">
+                Monitor your wellness journey, track progress daily
+              </p>
+            </div>
+
+            {/* Center Image Card - Maintains aspect ratio across all screens */}
+            <div className="max-w-2xl mx-auto mb-6 sm:mb-8 lg:mb-10">
+              <div 
+                className="group cursor-pointer"
+                onClick={() => navigate('/track-progress')}
+              >
+                <div className="rounded-2xl overflow-hidden shadow-lg relative transform transition-all duration-300 group-hover:scale-[1.02]">
+                  <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                    <img 
+                      src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop&q=80"
+                      alt="Health and wellness tracking"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/80 via-emerald-900/40 to-transparent"></div>
+                    <div className="absolute bottom-3 sm:bottom-4 md:bottom-6 left-3 sm:left-4 md:left-6 right-3 sm:right-4 md:right-6">
+                      <span className="inline-block px-2 sm:px-3 py-1 bg-emerald-500 text-white text-xs font-semibold rounded-full mb-2 sm:mb-3">
+                        Progress Tracking
+                      </span>
+                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1 sm:mb-2">
+                        Track Your Progress
+                      </h3>
+                      <p className="text-xs sm:text-sm md:text-base text-white/90">
+                        Monitor your health metrics and celebrate your wellness milestones
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Features Grid - Centered and consistent */}
+            <div className="max-w-4xl mx-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 mb-6">
+                
+                {/* Feature 1 */}
+                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 lg:p-6 border-2 border-emerald-100 hover:border-emerald-200 transition-all hover:shadow-md">
+                  <div className="flex sm:flex-col items-start sm:items-center gap-3 sm:gap-4">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                      <Calculator className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-emerald-600" />
+                    </div>
+                    <div className="flex-1 sm:text-center pt-0 sm:pt-0">
+                      <h4 className="font-bold text-base sm:text-lg text-gray-900 mb-1 sm:mb-2">Track daily</h4>
+                      <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">Monitor health metrics every day</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Feature 2 */}
+                <div className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 lg:p-6 border-2 border-teal-100 hover:border-teal-200 transition-all hover:shadow-md">
+                  <div className="flex sm:flex-col items-start sm:items-center gap-3 sm:gap-4">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                      <Activity className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-teal-600" />
+                    </div>
+                    <div className="flex-1 sm:text-center pt-0 sm:pt-0">
+                      <h4 className="font-bold text-base sm:text-lg text-gray-900 mb-1 sm:mb-2">View trends</h4>
+                      <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">See progress over time</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Feature 3 */}
+                <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 lg:p-6 border-2 border-cyan-100 hover:border-cyan-200 transition-all hover:shadow-md">
+                  <div className="flex sm:flex-col items-start sm:items-center gap-3 sm:gap-4">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                      <TrendingUp className="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 text-cyan-600" />
+                    </div>
+                    <div className="flex-1 sm:text-center pt-0 sm:pt-0">
+                      <h4 className="font-bold text-base sm:text-lg text-gray-900 mb-1 sm:mb-2">Get insights</h4>
+                      <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">Personalized recommendations</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Card Content - Right Side - Takes 3 columns on large screens */}
-              <div className="lg:col-span-3">
-                <Card className="border-2 border-emerald-200 shadow-xl bg-gradient-to-br from-emerald-50/30 via-white to-teal-50/30 overflow-hidden">
-                  <CardContent className="pt-4 pb-4 xs:pt-5 xs:pb-5 sm:pt-6 sm:pb-6 px-3 xs:px-4 sm:px-6 md:px-8">
-                    <div className="flex items-center justify-center mb-3 xs:mb-4 sm:mb-6">
-                      <Sparkles className="h-6 w-6 xs:h-8 xs:w-8 sm:h-10 sm:w-10 text-emerald-600 animate-pulse" />
-                    </div>
-                    <h2 className="text-lg xs:text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-3 xs:mb-4 sm:mb-6 text-center">
-                      Transform Your Health Journey
-                    </h2>
-                    <div className="space-y-3 xs:space-y-4 text-gray-700">
-                      <p className="text-xs xs:text-sm sm:text-base leading-relaxed">
-                        Diabetes can often be prevented and reversed through natural remedies, mindful nutrition, and stress-free living.
-                      </p>
-                      
-                      <div className="pt-1 xs:pt-2">
-                        <p className="text-xs xs:text-sm sm:text-base font-semibold text-gray-900 mb-2 xs:mb-3">
-                          With DiabetesCare:
-                        </p>
-                        <div className="grid grid-cols-1 gap-1.5 xs:gap-2">
-                          {benefits.map((benefit, index) => (
-                            <div 
-                              key={index}
-                              className="flex items-start gap-2 xs:gap-3 p-2 xs:p-2 sm:p-3 rounded-lg bg-gradient-to-r from-emerald-50/50 to-teal-50/50 hover:from-emerald-100/50 hover:to-teal-100/50 transition-all duration-200 group"
-                            >
-                              <span className="text-lg xs:text-xl sm:text-2xl flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
-                                {benefit.icon}
-                              </span>
-                              <p className="text-xs sm:text-base text-gray-700 leading-relaxed pt-0.5">
-                                {benefit.text}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+              {/* Start Tracking Link - Centered below cards */}
+              <div className="flex justify-center">
+                <div 
+                  className="inline-flex items-center gap-2 text-emerald-600 font-semibold cursor-pointer group/link hover:gap-3 transition-all text-sm sm:text-base"
+                  onClick={() => navigate('/track-progress')}
+                >
+                  <span>Start Tracking</span>
+                  <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 group-hover/link:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            </div>
 
-                      {/* Disclaimer Box */}
-                      <div className="mt-4 xs:mt-5 sm:mt-6 pt-3 xs:pt-4">
-                        <div className="bg-amber-50 border-l-4 border-amber-400 rounded-r-lg p-2.5 xs:p-3 sm:p-5 shadow-sm">
-                          <div className="flex gap-2 xs:gap-2 sm:gap-3">
-                            <AlertCircle className="h-4 w-4 xs:h-5 xs:w-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                            <div>
-                              <h4 className="font-semibold text-xs sm:text-base text-gray-900 mb-1">
-                                Important Note
-                              </h4>
-                              <p className="text-xs sm:text-sm text-gray-700 leading-relaxed">
-                                For educational purposes only. Consult a healthcare professional before making medical decisions.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+            {/* Disclaimer */}
+            <div className="mt-8 sm:mt-10 md:mt-12 max-w-3xl mx-auto">
+              <div className="bg-amber-50 border-l-4 border-amber-400 rounded-r-xl p-3 sm:p-4 shadow-sm">
+                <div className="flex gap-2 sm:gap-3">
+                  <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-semibold text-xs sm:text-sm text-gray-900 mb-1">
+                      Important Note
+                    </h4>
+                    <p className="text-xs sm:text-sm text-gray-700 leading-relaxed">
+                      For educational purposes only. Consult a healthcare professional before making medical decisions.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </section>
+
       </main>
+
+      {/* Get Started Confirmation Dialog */}
+      <AlertDialog open={showGetStartedDialog} onOpenChange={setShowGetStartedDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Calculator className="h-5 w-5 text-emerald-600" />
+              Start Your Health Assessment?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-base">
+              Are you ready to track your diabetes risk and get personalized health insights? This will take you to our comprehensive health assessment form.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Not Now</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setShowGetStartedDialog(false);
+                navigate('/tracker');
+              }}
+              className="bg-emerald-600 hover:bg-emerald-700"
+            >
+              Yes, Let's Start
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Footer />
     </div>
